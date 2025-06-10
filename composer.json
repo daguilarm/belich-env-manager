@@ -1,50 +1,55 @@
- {
-     "name": "daguilar/belich-env-manager",
-     "description": "A Laravel package to manage .env files with grouping and backups.",
-     "keywords": [
-         "laravel",
-         "env",
-         "configuration",
-         "manager",
-         "editor",
-         "package"
-     ],
-     "homepage": "https://github.com/daguilar/belich-env-manager",
-     "license": "MIT",
-     "type": "laravel-package",
-     "authors": [
-         {
-             "name": "Damian Aguilar",
-             "email": "tu-email@example.com",
-             "homepage": "https://tu-sitio.com"
-         }
-     ],
-     "require": {
-         "php": "^8.2",
-         "illuminate/support": "^12.0",
-         "laravel/framework": "^12.0",
-         "symfony/yaml": "^7.0"                  
-     },
-     "require-dev": {
-         "orchestra/testbench": "^10.0",
-         "phpunit/phpunit": "^11.0",
-         "mockery/mockery": "^1.6"
-     },
-     "autoload": {
-         "psr-4": {
-             "Daguilar\\BelichEnvManager\\": "src/"
-         }
-     },
-     "extra": {
-         "laravel": {
-             "providers": [
-                 "Daguilar\\BelichEnvManager\\BelichEnvManagerServiceProvider"
-             ]
-         }
-     },
-     "config": {
-         "sort-packages": true
-     },
-     "minimum-stability": "dev",
-     "prefer-stable": true
- }
+{
+    "name": "daguilar/belich-env-manager",
+    "description": "A Laravel package to manage .env files with backup functionality.",
+    "keywords": ["laravel", "env", "manager", "belich"],
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Damian Aguilar",
+            "email": "damian.aguilar@example.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.0",
+        "illuminate/filesystem": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/support": "^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^3.8",
+        "laravel/pint": "^1.22"
+    },
+    "autoload": {
+        "psr-4": {
+            "Daguilar\\BelichEnvManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Daguilar\\BelichEnvManager\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "test-p": "./vendor/bin/pest --parallel",
+        "test-unit": "./vendor/bin/pest --testsuite Unit --parallel"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Daguilar\\BelichEnvManager\\BelichEnvManagerServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

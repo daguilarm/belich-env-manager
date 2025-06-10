@@ -22,21 +22,7 @@ return [
     */
     'backup' => [
         'enabled' => true,
-        'path' => storage_path('app/env_backups'),
+        'path' => storage_path('app/belich/env_backups'),
         'retention_days' => 7, // Backups older than this will be pruned
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | UI Settings
-    |--------------------------------------------------------------------------
-    |
-    | Configure aspects of the user interface, like which middleware to use
-    | for the routes.
-    |
-    */
-    'ui' => [
-        'route_prefix' => 'env-manager',
-        'middleware' => ['web'], // Or your custom middleware for admin access
     ],
 ];
