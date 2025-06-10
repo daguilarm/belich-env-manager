@@ -1,0 +1,50 @@
+ {
+     "name": "daguilar/belich-env-manager",
+     "description": "A Laravel package to manage .env files with grouping and backups.",
+     "keywords": [
+         "laravel",
+         "env",
+         "configuration",
+         "manager",
+         "editor",
+         "package"
+     ],
+     "homepage": "https://github.com/daguilar/belich-env-manager",
+     "license": "MIT",
+     "type": "laravel-package",
+     "authors": [
+         {
+             "name": "Damian Aguilar",
+             "email": "tu-email@example.com",
+             "homepage": "https://tu-sitio.com"
+         }
+     ],
+     "require": {
+         "php": "^8.2",
+         "illuminate/support": "^12.0",
+         "laravel/framework": "^12.0",
+         "symfony/yaml": "^7.0"                  
+     },
+     "require-dev": {
+         "orchestra/testbench": "^10.0",
+         "phpunit/phpunit": "^11.0",
+         "mockery/mockery": "^1.6"
+     },
+     "autoload": {
+         "psr-4": {
+             "Daguilar\\BelichEnvManager\\": "src/"
+         }
+     },
+     "extra": {
+         "laravel": {
+             "providers": [
+                 "Daguilar\\BelichEnvManager\\BelichEnvManagerServiceProvider"
+             ]
+         }
+     },
+     "config": {
+         "sort-packages": true
+     },
+     "minimum-stability": "dev",
+     "prefer-stable": true
+ }
