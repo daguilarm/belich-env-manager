@@ -15,6 +15,16 @@ class EnvParser
      */
     public function parse(string $content): array
     {
+        // Handle empty input string
+        if ($content === '') {
+            return [];
+        }
+
+        // Handle input string consisting of only a single newline character
+        if (preg_match('/^(\r\n|\n|\r)$/D', $content)) {
+            return [['type' => 'empty']];
+        }
+
         $lines = [];
         $pendingCommentsAbove = [];
         $rawLinesArray = preg_split("/(\r\n|\n|\r)/", $content);
