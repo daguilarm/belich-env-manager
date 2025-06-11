@@ -71,6 +71,8 @@ After publishing the configuration file, you can find it at `config/belich-env-m
 
 You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\EnvManager` class.
 
+Please, remember this is a **beta version**, use it with the utmost caution.
+
 ## Using the Facade
 
 ```php 
