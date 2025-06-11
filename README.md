@@ -47,7 +47,7 @@ It allows you to read, write, and update environment variables with ease, includ
 You can install the package via composer:
 
 ```bash
-composer require your-vendor/your-package-name
+composer require daguilar/belich-env-manager
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
