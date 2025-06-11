@@ -2,7 +2,6 @@
 
 use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
 use Illuminate\Filesystem\Filesystem;
-use Mockery\MockInterface;
 
 beforeEach(function () {
     $this->filesystemMock = Mockery::mock(Filesystem::class);

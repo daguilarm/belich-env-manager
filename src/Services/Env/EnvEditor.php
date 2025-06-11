@@ -11,10 +11,10 @@ class EnvEditor
 {
     /**
      * @var array<int, array<string, mixed>> The lines parsed from the .env file.
-     * Each line is an associative array, e.g.,
-     * ['type' => 'variable', 'key' => 'APP_NAME', 'value' => 'Laravel', ...],
-     * ['type' => 'comment', 'content' => '# Some comment'],
-     * ['type' => 'empty']
+     *                                       Each line is an associative array, e.g.,
+     *                                       ['type' => 'variable', 'key' => 'APP_NAME', 'value' => 'Laravel', ...],
+     *                                       ['type' => 'comment', 'content' => '# Some comment'],
+     *                                       ['type' => 'empty']
      */
     protected array $lines = [];
 
@@ -31,7 +31,7 @@ class EnvEditor
     /**
      * Sets all parsed lines, replacing any existing ones.
      *
-     * @param array<int, array<string, mixed>> $lines
+     * @param  array<int, array<string, mixed>>  $lines
      */
     public function setLines(array $lines): void
     {
@@ -40,10 +40,6 @@ class EnvEditor
 
     /**
      * Checks if a variable key exists.
-     *
-     * @param string $key
-     * 
-     * @return bool
      */
     public function has(string $key): bool
     {
@@ -54,10 +50,7 @@ class EnvEditor
     /**
      * Gets the value of a variable key.
      *
-     * @param string $key
-     * @param string|null $default
-     * 
-     * @return string|null 
+     * @param  string|null  $default
      */
     public function get(string $key, $default = null): ?string
     {
@@ -71,12 +64,9 @@ class EnvEditor
      * Sets or updates a variable key with a new value and optional comments.
      * If the key exists, it's updated. Otherwise, a new line is appended.
      *
-     * @param string $key
-     * @param string $value 
-     * @param string|null $inlineComment
-     * @param array<string>|null $commentsAbove
+     * @param  array<string>|null  $commentsAbove
      */
-    public function set(string $key, string $value, ?string $inlineComment = null, array $commentsAbove = null): void
+    public function set(string $key, string $value, ?string $inlineComment = null, ?array $commentsAbove = null): void
     {
         $index = $this->findLineIndexByKey($key);
 
@@ -90,8 +80,6 @@ class EnvEditor
     /**
      * Removes a variable key and its associated line.
      * Also cleans up any resulting consecutive empty lines.
-     *
-     * @param string $key
      */
     public function remove(string $key): void
     {
@@ -108,10 +96,6 @@ class EnvEditor
 
     /**
      * Finds the array index of a line by its variable key.
-     *
-     * @param string $key
-     * 
-     * @return int|null
      */
     private function findLineIndexByKey(string $key): ?int
     {
@@ -124,10 +108,7 @@ class EnvEditor
     /**
      * Updates an existing line at a specific index.
      *
-     * @param int $index
-     * @param string $value
-     * @param string|null $inlineComment
-     * @param array<string>|null $commentsAbove
+     * @param  array<string>|null  $commentsAbove
      */
     private function updateLineAtIndex(int $index, string $value, ?string $inlineComment, ?array $commentsAbove): void
     {
@@ -140,7 +121,7 @@ class EnvEditor
         if ($commentsAbove !== null) {
             $this->lines[$index]['comment_above'] = $commentsAbove;
         }
-        
+
         // Ensure 'comment_above' key exists if it was not there and not explicitly set
         if (! array_key_exists('comment_above', $this->lines[$index])) {
             $this->lines[$index]['comment_above'] = [];
@@ -150,10 +131,7 @@ class EnvEditor
     /**
      * Appends a new variable line to the lines array.
      *
-     * @param string $key 
-     * @param string $value 
-     * @param string|null $inlineComment
-     * @param array<string>|null $commentsAbove
+     * @param  array<string>|null  $commentsAbove
      */
     private function appendNewLine(string $key, string $value, ?string $inlineComment, ?array $commentsAbove): void
     {
@@ -175,8 +153,7 @@ class EnvEditor
     /**
      * Collapses multiple consecutive empty lines into a single one.
      *
-     * @param array<int, array<string, mixed>> $lines
-     * 
+     * @param  array<int, array<string, mixed>>  $lines
      * @return array<int, array<string, mixed>>
      */
     private function cleanupEmptyLines(array $lines): array
@@ -188,12 +165,13 @@ class EnvEditor
         return collect($lines)
             ->reduce(function ($carry, $currentItem) {
                 $isCurrentEmpty = $currentItem['type'] === 'empty';
-                $lastItemWasEmpty = !empty($carry) && end($carry)['type'] === 'empty';
+                $lastItemWasEmpty = ! empty($carry) && end($carry)['type'] === 'empty';
 
                 // Add the current item unless it's an empty line and the previous line was also empty.
-                if (!($isCurrentEmpty && $lastItemWasEmpty)) {
+                if (! ($isCurrentEmpty && $lastItemWasEmpty)) {
                     $carry[] = $currentItem;
                 }
+
                 return $carry;
             }, []);
     }

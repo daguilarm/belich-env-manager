@@ -20,8 +20,7 @@ beforeEach(function () {
     // For EnvEditor, we'll use a real instance as its state is crucial for many tests
     // and mocking all its interactions would be overly complex and less representative.
     // We can still mock specific methods on it if a test requires very specific behavior.
-    $this->envEditor = new EnvEditor();
-
+    $this->envEditor = new EnvEditor;
 
     // Basic configuration
     $this->config->set('belich-env-manager.backup.enabled', true);
@@ -106,27 +105,27 @@ test('it loads and parses env content', function () {
     // Expectations for the load() method
     $this->envStorage
         ->shouldReceive('read')->with($this->testBelichEnvPath)->once()
-            ->andReturn($content);
+        ->andReturn($content);
 
     $this->envParser
         ->shouldReceive('parse')->with($content)->once()
-            ->andReturn($parsedLines);
+        ->andReturn($parsedLines);
 
     $this->envManager->load(); // This will populate the real EnvEditor instance
 
     expect($this->envManager->has('APP_NAME'))
-            ->toBeTrue()
+        ->toBeTrue()
         ->and($this->envManager->get('APP_NAME'))
-            ->toBe('Test App')
+        ->toBe('Test App')
         ->and($this->envManager->has('DB_CONNECTION'))
-            ->toBeTrue();
+        ->toBeTrue();
 });
 
 // Test that values can be set and retrieved correctly.
 test('it sets and gets values correctly', function () {
     $this->backupManager
         ->shouldReceive('create')->with($this->testBelichEnvPath)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     // set() will call $this->envEditor->set()
     $setter = $this->envManager->set('TEST_KEY', 'test_value');
@@ -137,31 +136,32 @@ test('it sets and gets values correctly', function () {
     // 3. $this->backupManager->create() (mocked above)
     // 4. $this->envStorage->write()
     $expectedFormattedContent = 'TEST_KEY="test_value"'.PHP_EOL; // Formatter adds quotes for non-numeric/bool
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function ($lines) {
-                // Check if the lines array contains the TEST_KEY
-                foreach ($lines as $line) {
-                    if ($line['type'] === 'variable' && $line['key'] === 'TEST_KEY' && $line['value'] === 'test_value') {
-                        return true;
-                    }
+        ->with(Mockery::on(function ($lines) {
+            // Check if the lines array contains the TEST_KEY
+            foreach ($lines as $line) {
+                if ($line['type'] === 'variable' && $line['key'] === 'TEST_KEY' && $line['value'] === 'test_value') {
+                    return true;
                 }
-                return false;
-            }))
-            ->andReturn($expectedFormattedContent);
-    
+            }
+
+            return false;
+        }))
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter->save();
 
     // has() and get() will call $this->envEditor->has() and $this->envEditor->get()
     expect($this->envManager->has('TEST_KEY'))
-            ->toBeTrue()
+        ->toBeTrue()
         ->and($this->envManager->get('TEST_KEY'))
-            ->toBe('test_value');
+        ->toBe('test_value');
 });
 
 // Test that existing values in the .env file are updated correctly.
@@ -169,14 +169,14 @@ test('it updates existing values', function () {
     // Initial load
     $initialContent = 'EXISTING_KEY=old_value';
     $initialParsed = [['type' => 'variable', 'key' => 'EXISTING_KEY', 'value' => 'old_value', 'comment_inline' => null, 'comment_above' => [], 'export' => false]];
-    
+
     $this->envStorage
         ->shouldReceive('read')->with($this->testBelichEnvPath)->once()
-            ->andReturn($initialContent);
+        ->andReturn($initialContent);
 
     $this->envParser
         ->shouldReceive('parse')->with($initialContent)->once()
-            ->andReturn($initialParsed);
+        ->andReturn($initialParsed);
     $this->envManager->load(); // Populates EnvEditor
 
     // Set
@@ -184,19 +184,19 @@ test('it updates existing values', function () {
     // Save
     $this->backupManager
         ->shouldReceive('create')->with($this->testBelichEnvPath)->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $expectedFormattedContent = 'EXISTING_KEY="new_value"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function ($lines) {
-                return $lines[0]['key'] === 'EXISTING_KEY' && $lines[0]['value'] === 'new_value';
-            }))
-            ->andReturn($expectedFormattedContent);
-    
+        ->with(Mockery::on(function ($lines) {
+            return $lines[0]['key'] === 'EXISTING_KEY' && $lines[0]['value'] === 'new_value';
+        }))
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
 
     expect($this->envManager->get('EXISTING_KEY'))
@@ -209,20 +209,20 @@ test('it handles inline comments', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $expectedFormattedContent = 'COMMENTED_KEY="value" # This is a comment'.PHP_EOL;
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function ($lines) {
-                return collect($lines)->contains(fn($l) => $l['type'] === 'variable' && $l['key'] === 'COMMENTED_KEY' && $l['comment_inline'] === 'This is a comment');
-            }))
-            ->andReturn($expectedFormattedContent);
+        ->with(Mockery::on(function ($lines) {
+            return collect($lines)->contains(fn ($l) => $l['type'] === 'variable' && $l['key'] === 'COMMENTED_KEY' && $l['comment_inline'] === 'This is a comment');
+        }))
+        ->andReturn($expectedFormattedContent);
 
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter->save();
 
@@ -242,20 +242,20 @@ test('it handles block comments', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
-    $expectedFormattedContent = "# First comment".PHP_EOL."# Second comment".PHP_EOL.'BLOCK_KEY="value"'.PHP_EOL;
-    
+    $expectedFormattedContent = '# First comment'.PHP_EOL.'# Second comment'.PHP_EOL.'BLOCK_KEY="value"'.PHP_EOL;
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function ($lines) {
-                return collect($lines)->contains(fn($l) => $l['type'] === 'variable' && $l['key'] === 'BLOCK_KEY' && $l['comment_above'] == ['# First comment', '# Second comment']);
-            }))
-            ->andReturn($expectedFormattedContent);
-    
+        ->with(Mockery::on(function ($lines) {
+            return collect($lines)->contains(fn ($l) => $l['type'] === 'variable' && $l['key'] === 'BLOCK_KEY' && $l['comment_above'] == ['# First comment', '# Second comment']);
+        }))
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter->save();
 
@@ -272,17 +272,17 @@ test('it removes keys correctly', function () {
     $initialContent = "KEY_TO_REMOVE=value\nANOTHER_KEY=value2";
     $initialParsed = [
         ['type' => 'variable', 'key' => 'KEY_TO_REMOVE', 'value' => 'value', 'comment_inline' => null, 'comment_above' => [], 'export' => false],
-        ['type' => 'variable', 'key' => 'ANOTHER_KEY', 'value' => 'value2', 'comment_inline' => null, 'comment_above' => [], 'export' => false]
+        ['type' => 'variable', 'key' => 'ANOTHER_KEY', 'value' => 'value2', 'comment_inline' => null, 'comment_above' => [], 'export' => false],
     ];
-    
+
     $this->envStorage
         ->shouldReceive('read')->with($this->testBelichEnvPath)->once()
-            ->andReturn($initialContent);
-    
+        ->andReturn($initialContent);
+
     $this->envParser
         ->shouldReceive('parse')->with($initialContent)->once()
-            ->andReturn($initialParsed);
-    
+        ->andReturn($initialParsed);
+
     $this->envManager->load();
 
     // Remove
@@ -291,27 +291,27 @@ test('it removes keys correctly', function () {
     // Save
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $expectedFormattedContent = 'ANOTHER_KEY="value2"'.PHP_EOL;
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function ($lines) {
-                return count($lines) === 1 && $lines[0]['key'] === 'ANOTHER_KEY';
-            }))
-            ->andReturn($expectedFormattedContent);
-    
+        ->with(Mockery::on(function ($lines) {
+            return count($lines) === 1 && $lines[0]['key'] === 'ANOTHER_KEY';
+        }))
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $this->envManager->save();
 
     expect($this->envManager->has('KEY_TO_REMOVE'))
-            ->toBeFalse()
+        ->toBeFalse()
         ->and($this->envManager->has('ANOTHER_KEY'))
-            ->toBeTrue();
+        ->toBeTrue();
 });
 
 // Test that empty values are handled correctly (e.g., EMPTY_KEY="").
@@ -320,18 +320,18 @@ test('it handles empty values', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $expectedFormattedContent = 'EMPTY_KEY=""'.PHP_EOL;
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expectedFormattedContent);
-   
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormattedContent);
@@ -348,27 +348,27 @@ test('it handles boolean values correctly', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $expectedFormattedContent = 'TRUE_KEY="true"'.PHP_EOL.'FALSE_KEY="false"'.PHP_EOL;
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expectedFormattedContent);
-    
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormattedContent);
     $content = $this->files->get($this->testBelichEnvPath);
 
     expect($content)
-            ->toContain('TRUE_KEY="true"')
+        ->toContain('TRUE_KEY="true"')
         ->and($content)
-            ->toContain('FALSE_KEY="false"');
+        ->toContain('FALSE_KEY="false"');
 });
 
 // Test that values containing spaces are correctly quoted.
@@ -377,18 +377,18 @@ test('it quotes values with spaces', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $expectedFormattedContent = 'SPACED_KEY="value with spaces"'.PHP_EOL;
-    
+
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expectedFormattedContent);
-    
+        ->andReturn($expectedFormattedContent);
+
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $expectedFormattedContent)->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormattedContent);
@@ -404,14 +404,14 @@ test('it saves content correctly', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $finalContent = 'SAVE_KEY="save_value"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($finalContent);
+        ->andReturn($finalContent);
     $this->envStorage
         ->shouldReceive('write')->with($this->testBelichEnvPath, $finalContent)->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $result = $setter->save();
 
@@ -419,9 +419,9 @@ test('it saves content correctly', function () {
     $this->files->put($this->testBelichEnvPath, $finalContent);
 
     expect($result)
-            ->toBeTrue()
+        ->toBeTrue()
         ->and($this->files->get($this->testBelichEnvPath))
-            ->toContain('SAVE_KEY="save_value"');
+        ->toContain('SAVE_KEY="save_value"');
 });
 
 // Test that a backup is created when saving if backups are enabled in the configuration.
@@ -430,17 +430,17 @@ test('it creates backups when saving if enabled', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()->with($envPath) // Ensure it's called with the correct path
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter = $this->envManager->set('BACKUP_KEY', 'backup_value');
 
     // Mock formatter and storage for save to complete
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('BACKUP_KEY="backup_value"'.PHP_EOL);
+        ->andReturn('BACKUP_KEY="backup_value"'.PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter->save();
     // Assertion is implicitly handled by Mockery's expectation `once()`
@@ -465,17 +465,16 @@ test('it does not create backups when disabled', function () {
         ->shouldReceive('parse')->with('')
         ->andReturn([])->byDefault(); // For the new instance's load
 
-
     $this->backupManager->shouldReceive('create')->never();
 
     $setter = $envManager->set('NO_BACKUP_KEY', 'no_backup');
 
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('NO_BACKUP_KEY="no_backup"'.PHP_EOL);
+        ->andReturn('NO_BACKUP_KEY="no_backup"'.PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $setter->save();
     // Assertion is implicitly handled by Mockery's expectation `never()`
@@ -492,10 +491,10 @@ test('it handles non-existent env file on load', function () {
 
     $this->envStorage
         ->shouldReceive('read')->with($this->testBelichEnvPath)->once()
-            ->andReturn(''); // Simulate file not existing or empty
+        ->andReturn(''); // Simulate file not existing or empty
     $this->envParser
         ->shouldReceive('parse')->with('')->once()
-            ->andReturn([]);
+        ->andReturn([]);
     // EnvEditor (real) will have setLines([]) called by EnvManager's constructor via load()
 
     // Re-trigger load or rely on constructor's load
@@ -503,11 +502,10 @@ test('it handles non-existent env file on load', function () {
 
     $this->envFormatter
         ->shouldReceive('format')->with([])->once()
-            ->andReturn('');
+        ->andReturn('');
 
     expect($this->envManager->getEnvContent())->toBeEmpty();
 });
-
 
 // Test that values containing quotes are handled correctly (quotes are escaped).
 test('it handles values with quotes correctly', function () {
@@ -515,14 +513,14 @@ test('it handles values with quotes correctly', function () {
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $expectedFormattedContent = 'QUOTED_KEY="value with \\"quotes\\""'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expectedFormattedContent);
+        ->andReturn($expectedFormattedContent);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $setter->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormattedContent);
@@ -537,13 +535,13 @@ test('it handles export statements correctly', function () {
     // Load
     $initialContent = 'export EXPORTED_KEY=exported_value';
     $initialParsed = [['type' => 'variable', 'key' => 'EXPORTED_KEY', 'value' => 'exported_value', 'comment_inline' => null, 'comment_above' => [], 'export' => true]];
-    
+
     $this->envStorage
         ->shouldReceive('read')->with($this->testBelichEnvPath)->once()
-            ->andReturn($initialContent);
+        ->andReturn($initialContent);
     $this->envParser
         ->shouldReceive('parse')->with($initialContent)->once()
-            ->andReturn($initialParsed);
+        ->andReturn($initialParsed);
     $this->envManager->load();
 
     expect($this->envManager->get('EXPORTED_KEY'))
@@ -553,20 +551,20 @@ test('it handles export statements correctly', function () {
     $setter1 = $this->envManager->set('EXPORTED_KEY', 'new_value');
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $formattedContent1 = 'export EXPORTED_KEY=new_value'.PHP_EOL; // Assuming formatter doesn't quote simple values
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($formattedContent1);
+        ->andReturn($formattedContent1);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter1->save();
-    
+
     $this->files->put($this->testBelichEnvPath, $formattedContent1); // Simulate for assertion
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('export EXPORTED_KEY=new_value');
 
@@ -574,20 +572,20 @@ test('it handles export statements correctly', function () {
     $setter2 = $this->envManager->set('EXPORTED_KEY', 'new value with spaces');
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true); // For the second save
-    
+        ->andReturn(true); // For the second save
+
     $formattedContent2 = 'export EXPORTED_KEY="new value with spaces"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($formattedContent2);
+        ->andReturn($formattedContent2);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-   
+        ->andReturn(true);
+
     $setter2->save();
-    
+
     $this->files->put($this->testBelichEnvPath, $formattedContent2); // Simulate for assertion
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('export EXPORTED_KEY="new value with spaces"');
 });
@@ -605,31 +603,32 @@ test('it cleans up empty lines after removal', function () {
     ];
     $this->envStorage
         ->shouldReceive('read')->once()
-            ->andReturn($content);
+        ->andReturn($content);
     $this->envParser
         ->shouldReceive('parse')->once()
-            ->andReturn($initialParsed);
+        ->andReturn($initialParsed);
     $this->envManager->load();
 
     $this->envManager->remove('KEY2'); // EnvEditor will handle removal and cleanup
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     // EnvEditor's lines after removal and cleanup should be:
     // KEY1=value1, empty, KEY3=value3 (assuming cleanupEmptyLines in EnvEditor works)
-    $expectedFormatted = "KEY1=value1".PHP_EOL.PHP_EOL."KEY3=value3".PHP_EOL;
+    $expectedFormatted = 'KEY1=value1'.PHP_EOL.PHP_EOL.'KEY3=value3'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function($lines) {
-                // Basic check: KEY2 should not be present, KEY1 and KEY3 should.
-                $keys = array_column(array_filter($lines, fn($l) => $l['type'] === 'variable'), 'key');
-                return in_array('KEY1', $keys) && !in_array('KEY2', $keys) && in_array('KEY3', $keys);
-            }))
-            ->andReturn($expectedFormatted);
+        ->with(Mockery::on(function ($lines) {
+            // Basic check: KEY2 should not be present, KEY1 and KEY3 should.
+            $keys = array_column(array_filter($lines, fn ($l) => $l['type'] === 'variable'), 'key');
+
+            return in_array('KEY1', $keys) && ! in_array('KEY2', $keys) && in_array('KEY3', $keys);
+        }))
+        ->andReturn($expectedFormatted);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $this->envManager->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormatted);
@@ -637,7 +636,7 @@ test('it cleans up empty lines after removal', function () {
     // The exact number of newlines depends on EnvEditor's cleanup and EnvFormatter's behavior.
     // This assertion is a bit loose due to that.
     expect($newContent)
-        ->toContain("KEY1=value1".PHP_EOL.PHP_EOL."KEY3=value3");
+        ->toContain('KEY1=value1'.PHP_EOL.PHP_EOL.'KEY3=value3');
 });
 
 // Test that multiple consecutive save operations work as expected.
@@ -646,29 +645,29 @@ test('it handles multiple consecutive saves', function () {
 
     $this->backupManager
         ->shouldReceive('create')
-            ->twice()->with($envPath) // Expect backup for each save
-            ->andReturn(true);
+        ->twice()->with($envPath) // Expect backup for each save
+        ->andReturn(true);
 
     // First save
     $setter1 = $this->envManager->set('FIRST_KEY', 'first_value');
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('FIRST_KEY="first_value"'.PHP_EOL);
+        ->andReturn('FIRST_KEY="first_value"'.PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter1->save();
 
     // Second save
     $setter2 = $this->envManager->set('SECOND_KEY', 'second_value');
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('FIRST_KEY="first_value"'.PHP_EOL.'SECOND_KEY="second_value"'.PHP_EOL);
+        ->andReturn('FIRST_KEY="first_value"'.PHP_EOL.'SECOND_KEY="second_value"'.PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter2->save();
     // Assertions are on the mocks
 });
@@ -678,40 +677,40 @@ test('it preserves comments when updating values', function () {
     $content = "# Important setting\nKEY=old_value # with comment";
     $initialParsed = [
         // EnvParser should put '# Important setting' into comment_above of KEY
-        ['type' => 'variable', 'key' => 'KEY', 'value' => 'old_value', 'comment_inline' => 'with comment', 'comment_above' => ['# Important setting'], 'export' => false]
+        ['type' => 'variable', 'key' => 'KEY', 'value' => 'old_value', 'comment_inline' => 'with comment', 'comment_above' => ['# Important setting'], 'export' => false],
     ];
     $this->envStorage
         ->shouldReceive('read')->once()
-            ->andReturn($content);
+        ->andReturn($content);
     $this->envParser
         ->shouldReceive('parse')->once()
-            ->andReturn($initialParsed);
+        ->andReturn($initialParsed);
     $this->envManager->load();
 
     $setter = $this->envManager->set('KEY', 'new_value'); // EnvEditor should preserve comments if not overridden
 
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    $expectedFormatted = "# Important setting".PHP_EOL.'KEY="new_value" # with comment'.PHP_EOL;
+        ->andReturn(true);
+    $expectedFormatted = '# Important setting'.PHP_EOL.'KEY="new_value" # with comment'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->with(Mockery::on(function($lines){
-                return $lines[0]['key'] === 'KEY' &&
-                       $lines[0]['value'] === 'new_value' &&
-                       $lines[0]['comment_above'] == ['# Important setting'] &&
-                       $lines[0]['comment_inline'] === 'with comment';
-            }))
-            ->andReturn($expectedFormatted);
+        ->with(Mockery::on(function ($lines) {
+            return $lines[0]['key'] === 'KEY' &&
+                   $lines[0]['value'] === 'new_value' &&
+                   $lines[0]['comment_above'] == ['# Important setting'] &&
+                   $lines[0]['comment_inline'] === 'with comment';
+        }))
+        ->andReturn($expectedFormatted);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
 
     $this->files->put($this->testBelichEnvPath, $expectedFormatted);
     $newContent = $this->files->get($this->testBelichEnvPath);
-    
+
     expect($newContent)
         ->toContain("# Important setting\nKEY=\"new_value\" # with comment");
 });
@@ -721,20 +720,20 @@ test('it handles values with equal signs', function () {
     $setter = $this->envManager->set('EQUAL_KEY', 'value=with=equals');
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $expected = 'EQUAL_KEY="value=with=equals"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expected);
+        ->andReturn($expected);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
-    
+
     $this->files->put($this->testBelichEnvPath, $expected);
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('EQUAL_KEY="value=with=equals"');
 });
@@ -744,20 +743,20 @@ test('it handles numeric values correctly', function () {
     $setter = $this->envManager->set('NUMBER_KEY', '12345'); // EnvManager expects string
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $expected = 'NUMBER_KEY=12345'.PHP_EOL; // Formatter might not quote simple numerics
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expected);
+        ->andReturn($expected);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
-    
+
     $this->files->put($this->testBelichEnvPath, $expected);
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('NUMBER_KEY=12345');
 });
@@ -767,20 +766,20 @@ test('it handles null values correctly', function () {
     $setter = $this->envManager->set('NULL_KEY', 'null');
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $expected = 'NULL_KEY="null"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expected);
+        ->andReturn($expected);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
-    
+
     $this->files->put($this->testBelichEnvPath, $expected);
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('NULL_KEY="null"');
 });
@@ -790,20 +789,20 @@ test('it handles special characters correctly', function () {
     $setter = $this->envManager->set('SPECIAL_KEY', 'value with $pecial@characters!');
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $expected = 'SPECIAL_KEY="value with $pecial@characters!"'.PHP_EOL;
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn($expected);
+        ->andReturn($expected);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
-    
+        ->andReturn(true);
+
     $setter->save();
-   
+
     $this->files->put($this->testBelichEnvPath, $expected);
-    
+
     expect($this->files->get($this->testBelichEnvPath))
         ->toContain('SPECIAL_KEY="value with $pecial@characters!"');
 });
@@ -824,16 +823,16 @@ test('EnvVariableSetter sets inline comment correctly and saves', function () {
     // Mock save operation
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('TEST_COMMENT_LINE="value" # This is an inline comment'.PHP_EOL);
+        ->andReturn('TEST_COMMENT_LINE="value" # This is an inline comment'.PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $result = $setter->save();
-    
+
     expect($result)->toBeTrue();
 });
 
@@ -852,16 +851,16 @@ test('EnvVariableSetter sets comments above correctly and saves', function () {
     // Mock save operation
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn("# Line 1 above\n# Line 2 above\nTEST_COMMENT_ABOVE=\"value\"".PHP_EOL);
+        ->andReturn("# Line 1 above\n# Line 2 above\nTEST_COMMENT_ABOVE=\"value\"".PHP_EOL);
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     $result = $setter->save();
-    
+
     expect($result)->toBeTrue();
 });
 
@@ -873,13 +872,13 @@ test('EnvVariableSetter can chain comment methods and save', function () {
     // Mock save operation (simplified, detailed state check done in previous tests)
     $this->backupManager
         ->shouldReceive('create')->once()
-            ->andReturn(true);
+        ->andReturn(true);
     $this->envFormatter
         ->shouldReceive('format')->once()
-            ->andReturn('...'); // Simplified for brevity
+        ->andReturn('...'); // Simplified for brevity
     $this->envStorage
         ->shouldReceive('write')->once()
-            ->andReturn(true);
+        ->andReturn(true);
 
     expect($setter->save())->toBeTrue();
 });

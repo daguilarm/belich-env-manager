@@ -2,8 +2,8 @@
 
 namespace Daguilar\BelichEnvManager\Services\Env;
 
+use Exception;
 use Illuminate\Filesystem\Filesystem;
-use Exception; 
 
 class EnvStorage
 {
@@ -16,8 +16,9 @@ class EnvStorage
     public function read(string $filePath): string
     {
         if (! $this->files->exists($filePath)) {
-            return "";
+            return '';
         }
+
         return $this->files->get($filePath);
     }
 
@@ -29,6 +30,7 @@ class EnvStorage
         if ($this->files->put($filePath, $content) === false) {
             throw new Exception("Could not write to .env file: {$filePath}");
         }
+
         return true;
     }
 }

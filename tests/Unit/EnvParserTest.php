@@ -3,7 +3,7 @@
 use Daguilar\BelichEnvManager\Services\Env\EnvParser;
 
 beforeEach(function () {
-    $this->parser = new EnvParser();
+    $this->parser = new EnvParser;
 });
 
 test('it parses an empty string as an empty array', function () {
