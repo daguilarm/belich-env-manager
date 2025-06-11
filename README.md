@@ -34,3 +34,120 @@ You can install the package via composer:
 
 ```bash
 composer require your-vendor/your-package-name
+```
+
+The package will automatically register its service provider. Optionally, you can publish the configuration file using:
+
+```bash 
+php artisan vendor:publish --provider="Daguilar\BelichEnvManager\BelichEnvManagerServiceProvider" --tag="belich-env-manager-config"
+```
+
+This will create a config/belich-env-manager.php file in your project where you can customize the backup settings.
+
+## Configuration
+
+After publishing the configuration file, you can find it at config/belich-env-manager.php. Available options:
+
+- backup.enabled: (bool) Enable or disable automatic backups. Defaults to true.
+- backup.path: (string) The directory path where backups will be stored. Defaults to storage_path('app/belich/env_backups').
+- backup.retention_days: (int) The number of days to retain backups. Backups older than this will be pruned. Set to 0 or null to retain  
+- forever. Defaults to 7.
+
+## Usage 
+
+You can use the Env facade or inject the Daguilar\BelichEnvManager\Services\EnvManager class.
+
+## Using the Facade
+
+```php 
+
+use Daguilar\BelichEnvManager\Facades\Env;
+
+// Get a value
+$appName = Env::get('APP_NAME');
+
+// Get a value with a default
+$dbHost = Env::get('DB_HOST', '127.0.0.1');
+
+// Check if a key exists
+if (Env::has('APP_DEBUG')) {
+    // ...
+}
+
+// Set a value
+Env::set('NEW_VARIABLE', 'its_value');
+
+// Set a value with an inline comment
+Env::set('API_KEY', 'your_api_key_here', 'This is an important API key');
+
+// Set a value with block comments above
+Env::set('MAIL_HOST', 'smtp.example.com', null, [
+    '# Mail Configuration',
+    '# Ensure these are correct for your provider'
+]);
+
+// Remove a key
+Env::remove('OLD_VARIABLE');
+
+// Save changes to the .env file
+// This will also trigger a backup if enabled
+Env::save();
+
+// Get the entire .env content as a string
+$envContent = Env::getEnvContent();
+```
+
+## Using Dependency Injection
+
+```php 
+use Daguilar\BelichEnvManager\Services\EnvManager;
+
+class YourService
+{
+    protected EnvManager $envManager;
+
+    public function __construct(EnvManager $envManager)
+    {
+        $this->envManager = $envManager;
+    }
+
+    public function updateEnv()
+    {
+        $this->envManager->set('MY_SETTING', 'new_value')->save();
+        
+        $currentAppName = $this->envManager->get('APP_NAME');
+        // Do something with $currentAppName
+    }
+}
+```
+
+## Backup Management
+
+Backups are created automatically when Env::save() or EnvManager::save() is called, provided backups are enabled in the configuration. Old backups are pruned according to the retention_days setting.
+
+## Testing 
+
+```bash 
+composer test
+```
+
+or
+
+```bash 
+#for tesing parallel
+composer test-p
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or create an issue for any bugs or feature requests.
+
+- Fork the Project.
+- Create your Feature Branch (git checkout -b feature/AmazingFeature).
+- Commit your Changes (git commit -m 'Add some AmazingFeature').
+- Push to the Branch (git push origin feature/AmazingFeature).
+- Open a Pull Request.
+
+## License
+
+The Laravel .env Manager is open-sourced software licensed under the MIT license.
