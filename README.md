@@ -33,7 +33,7 @@ A simple and robust package to programmatically manage your Laravel `.env` files
 You can install the package via composer:
 
 ```bash
-composer require your-vendor/your-package-name
+composer require daguilar/belich-env-manager
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
