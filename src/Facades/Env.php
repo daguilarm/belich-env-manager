@@ -19,6 +19,6 @@ class Env extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Daguilar\BelichEnvManager\Env\EnvManager::class;
+        return \Daguilar\BelichEnvManager\Services\EnvManager::class;
     }
 }
