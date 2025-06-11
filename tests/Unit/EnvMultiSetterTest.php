@@ -21,7 +21,7 @@ test('it can set multiple items and save them', function () {
         ->with('KEY1', 'value1', 'inline1', ['above1'])
         ->once();
     $this->editorMock->shouldReceive('set')
-        ->with('KEY2', 'value2', null, null) // No comments for the second one
+        ->with('KEY2', 'value2', 'inline2', ['above2']) // Added comments for the second one
         ->once();
 
     $this->managerMock->shouldReceive('save')->once()->andReturn(true);
@@ -31,6 +31,8 @@ test('it can set multiple items and save them', function () {
         ->commentLine('inline1')
         ->commentsAbove(['above1'])
         ->setItem('KEY2', 'value2')
+        ->commentLine('inline2')
+        ->commentsAbove(['above2'])
         ->save();
 
     expect($result)->toBeTrue();
