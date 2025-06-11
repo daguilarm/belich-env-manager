@@ -6,6 +6,8 @@ use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
 use Daguilar\BelichEnvManager\Services\Env\EnvParser;
 use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
+use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
+use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 use Exception;
@@ -88,18 +90,26 @@ class EnvManager
     }
 
     /**
-     * Sets or updates a key's value and comments in memory.
+     * Begins the process of setting or updating a key's value.
+     * Returns a fluent setter object to optionally add comments.
      *
      * @param string $key
      * @param string $value
-     * @param string|null $inlineComment
-     * @param array $commentsAbove
+     * @return EnvVariableSetter
      */
-    public function set(string $key, string $value, ?string $inlineComment = null, array $commentsAbove = null): self
+    public function set(string $key, string $value): EnvVariableSetter
     {
-        $this->editor->set($key, $value, $inlineComment, $commentsAbove);
+        return new EnvVariableSetter($this->editor, $this, $key, $value);
+    }
 
-        return $this;
+    /**
+     * Begins a batch operation for setting multiple environment variables.
+     *
+     * @return EnvMultiSetter
+     */
+    public function multipleSet(): EnvMultiSetter
+    {
+        return new EnvMultiSetter($this->editor, $this);
     }
 
     /**

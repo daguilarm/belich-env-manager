@@ -75,16 +75,16 @@ if (Env::has('APP_DEBUG')) {
 }
 
 // Set a value
-Env::set('NEW_VARIABLE', 'its_value');
+Env::set('NEW_VARIABLE', 'its_value')->save(); 
 
 // Set a value with an inline comment
-Env::set('API_KEY', 'your_api_key_here', 'This is an important API key');
+Env::set('API_KEY', 'your_api_key_here')->commentLine('This is an important API key')->save();
 
 // Set a value with block comments above
-Env::set('MAIL_HOST', 'smtp.example.com', null, [
+Env::set('MAIL_HOST', 'smtp.example.com')->commentsAbove([
     '# Mail Configuration',
     '# Ensure these are correct for your provider'
-]);
+])->save();
 
 // Remove a key
 Env::remove('OLD_VARIABLE');
@@ -95,6 +95,21 @@ Env::save();
 
 // Get the entire .env content as a string
 $envContent = Env::getEnvContent();
+```
+
+### Using multipleSet() for Batch Updates.
+
+For setting multiple variables at once with their respective comments, you can use the multipleSet() method for a fluent API:
+
+```php 
+use Daguilar\BelichEnvManager\Facades\Env; 
+
+Env::multipleSet()
+    ->setItem('BATCH_KEY_1', 'value1')
+    ->commentLine('Inline comment for BATCH_KEY_1')
+    ->setItem('BATCH_KEY_2', 'value2')
+    ->commentsAbove(['# Block comment for BATCH_KEY_2'])
+    ->save(); 
 ```
 
 ## Using Dependency Injection
@@ -113,7 +128,10 @@ class YourService
 
     public function updateEnv()
     {
-        $this->envManager->set('MY_SETTING', 'new_value')->save();
+        $this->envManager
+            ->set('MY_SETTING', 'new_value')
+            ->commentLine('Updated via DI')
+            ->save();
         
         $currentAppName = $this->envManager->get('APP_NAME');
         // Do something with $currentAppName
