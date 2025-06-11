@@ -4,29 +4,43 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/daguilar/belich-env-manager.svg?style=flat-square)](https://packagist.org/packages/daguilar/belich-env-manager)
 [![License](https://img.shields.io/packagist/l/daguilar/belich-env-manager.svg?style=flat-square)](LICENSE)
 
-A simple and robust package to programmatically manage your Laravel `.env` files. It allows you to read, write, and update environment variables with ease, including support for comments and automatic backups.
+A simple and versatil package to programmatically manage your Laravel `.env` files. 
+
+It allows you to read, write, and update environment variables with ease, including support for comments and automatic backups.
 
 ## Features
 
-*   **Read and Parse**: Accurately reads and parses existing `.env` files, understanding their structure.
-*   **Get Variables**: Retrieve the value of any environment variable.
-    *   Option to provide a default value if the key is not found.
+*   **Read and Parse**: 
+    - Accurately reads and parses existing `.env` files, understanding their structure.
+*   **Get Variables**: 
+    - Retrieve the value of any environment variable.
+    - Option to provide a default value if the key is not found.
 *   **Set Variables**: Add new variables or update existing ones.
-    *   Support for adding/updating inline comments.
-    *   Support for adding/updating block comments above a variable.
-*   **Remove Variables**: Delete environment variables from the file.
-*   **Check Existence**: Verify if a specific key exists in the `.env` file.
-*   **Comment Preservation**: Intelligently preserves existing inline and block comments when modifying variables.
-*   **`export` Prefix Preservation**: Recognizes and maintains the `export` prefix for variables if present.
-*   **Automatic Backups**: Creates a backup of the `.env` file before any changes are saved.
-    *   Configurable backup path.
-    *   Configurable retention policy (number of days to keep backups).
+    - Support for adding/updating inline comments.
+    - Support for adding/updating block comments above a variable.
+*   **Remove Variables**: 
+    - Delete environment variables from the file.
+*   **Check Existence**: 
+    - Verify if a specific key exists in the `.env` file.
+*   **Comment Preservation**: 
+    - Intelligently preserves existing inline and block comments when modifying variables.
+*   **`export` Prefix Preservation**: 
+    - Recognizes and maintains the `export` prefix for variables if present.
+*   **Automatic Backups**: 
+    - Creates a backup of the `.env` file before any changes are saved.
+    - Configurable backup path.
+    - Configurable retention policy (number of days to keep backups).
     *   Automatic pruning of old backups.
-*   **Fluent API**: Chain methods for a more expressive way to manage variables (e.g., `Env::set('KEY', 'value')->save()`).
-*   **Facade and Dependency Injection**: Usable via a convenient `Env` facade or by injecting the `EnvManager` service.
-*   **Configuration**: Publishable configuration file for backup settings.
-*   **PSR-12 Compliant**: Code follows PSR-12 coding standards.
-*   **PHP 8.1+**: Leverages modern PHP features.
+*   **Fluent API**: 
+    - Chain methods for a more expressive way to manage variables (e.g., `Env::set('KEY', 'value')->save()`).
+*   **Facade and Dependency Injection**: 
+    - Usable via a convenient `Env` facade or by injecting the `EnvManager` service.
+*   **Configuration**: 
+    - Publishable configuration file for backup settings.
+*   **PSR-12 Compliant**: 
+    - Code follows PSR-12 coding standards.
+*   **PHP 8.3+**: 
+    - Leverages modern PHP features.
 
 ## Installation
 
@@ -42,20 +56,22 @@ The package will automatically register its service provider. Optionally, you ca
 php artisan vendor:publish --provider="Daguilar\BelichEnvManager\BelichEnvManagerServiceProvider" --tag="belich-env-manager-config"
 ```
 
-This will create a config/belich-env-manager.php file in your project where you can customize the backup settings.
+This will create a `config/belich-env-manager.php` file in your project where you can customize the backup settings.
 
 ## Configuration
 
-After publishing the configuration file, you can find it at config/belich-env-manager.php. Available options:
+After publishing the configuration file, you can find it at `config/belich-env-manager.php`. Available options:
 
-- backup.enabled: (bool) Enable or disable automatic backups. Defaults to true.
-- backup.path: (string) The directory path where backups will be stored. Defaults to storage_path('app/belich/env_backups').
-- backup.retention_days: (int) The number of days to retain backups. Backups older than this will be pruned. Set to 0 or null to retain  
-- forever. Defaults to 7.
+- `backup.enabled`: (bool) Enable or disable automatic backups. Defaults to true.
+- `backup.path`: (string) The directory path where backups will be stored. Defaults to `storage_path('app/belich/env_backups')`.
+- `backup.retention_days`: (int) The number of days to retain backups. Backups older than this will be pruned. Set to 0 or null to retain forever. 
+    - Defaults to 7.
 
 ## Usage 
 
-You can use the Env facade or inject the Daguilar\BelichEnvManager\Services\EnvManager class.
+You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\EnvManager` class.
+
+Please, remember this is a **beta version**, use it with the utmost caution.
 
 ## Using the Facade
 
@@ -141,7 +157,7 @@ class YourService
 
 ## Backup Management
 
-Backups are created automatically when Env::save() or EnvManager::save() is called, provided backups are enabled in the configuration. Old backups are pruned according to the retention_days setting.
+Backups are created automatically when Env::save() or EnvManager::save() is called, provided backups are enabled in the configuration. Old backups are pruned according to the `retention_days` setting.
 
 ## Testing 
 
@@ -154,11 +170,11 @@ composer test
 Contributions are welcome! Please feel free to submit a pull request or create an issue for any bugs or feature requests.
 
 - Fork the Project.
-- Create your Feature Branch (git checkout -b feature/AmazingFeature).
-- Commit your Changes (git commit -m 'Add some AmazingFeature').
-- Push to the Branch (git push origin feature/AmazingFeature).
+- Create your Feature Branch (`git checkout -b feature`).
+- Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+- Push to the Branch (`git push origin feature`/AmazingFeature`).
 - Open a Pull Request.
 
 ## License
 
-The Laravel .env Manager is open-sourced software licensed under the MIT license.
+The Laravel **`ENV Manager`** is open-sourced software licensed under the MIT license.
