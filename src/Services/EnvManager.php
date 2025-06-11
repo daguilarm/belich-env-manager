@@ -4,17 +4,17 @@ namespace Daguilar\BelichEnvManager\Services;
 
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
+use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
 use Daguilar\BelichEnvManager\Services\Env\EnvParser;
 use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
 use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
-use Exception;
 
 class EnvManager
 {
-    protected string $envPath; 
+    protected string $envPath;
+
     protected bool $backupsEnabled; // Backup creation can be disabled
 
     public function __construct(
@@ -66,10 +66,6 @@ class EnvManager
 
     /**
      * Checks if a key exists.
-     *
-     * @param string $key
-     * 
-     * @return bool
      */
     public function has(string $key): bool
     {
@@ -79,10 +75,7 @@ class EnvManager
     /**
      * Gets the value of a key.
      *
-     * @param string $key
-     * @param mixed $default
-     * 
-     * @return string|null
+     * @param  mixed  $default
      */
     public function get(string $key, $default = null): ?string
     {
@@ -92,10 +85,6 @@ class EnvManager
     /**
      * Begins the process of setting or updating a key's value.
      * Returns a fluent setter object to optionally add comments.
-     *
-     * @param string $key
-     * @param string $value
-     * @return EnvVariableSetter
      */
     public function set(string $key, string $value): EnvVariableSetter
     {
@@ -104,8 +93,6 @@ class EnvManager
 
     /**
      * Begins a batch operation for setting multiple environment variables.
-     *
-     * @return EnvMultiSetter
      */
     public function multipleSet(): EnvMultiSetter
     {

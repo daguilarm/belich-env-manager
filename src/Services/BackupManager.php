@@ -23,10 +23,8 @@ class BackupManager
     /**
      * Create a new BackupManager instance from configuration.
      *
-     * @param Filesystem $files The filesystem instance.
-     * @param ConfigRepository $config The configuration repository instance.
-     * 
-     * @return self
+     * @param  Filesystem  $files  The filesystem instance.
+     * @param  ConfigRepository  $config  The configuration repository instance.
      */
     public static function fromConfig(Filesystem $files, ConfigRepository $config): self
     {
@@ -38,10 +36,6 @@ class BackupManager
 
     /**
      * Creates a backup of the specified file.
-     *
-     * @param string $filePathToBackup 
-     * 
-     * @return string|false 
      */
     public function create(string $filePathToBackup): string|false
     {
@@ -56,12 +50,13 @@ class BackupManager
             '%s.backup_%s_%s',
             $originalFileName,
             Carbon::now()->format('Ymd_His'),
-            Str::random(8) 
+            Str::random(8)
         );
         $backupFilePath = $this->backupPath.DIRECTORY_SEPARATOR.$backupName;
 
         if ($this->files->copy($filePathToBackup, $backupFilePath)) {
             $this->prune($originalFileName);
+
             return $backupFilePath;
         }
 
@@ -70,8 +65,6 @@ class BackupManager
 
     /**
      * Prunes old backups according to the retention policy.
-     *
-     * @param string $originalFileName                 
      */
     public function prune(string $originalFileName): void
     {
@@ -80,7 +73,7 @@ class BackupManager
         }
 
         $cutoffTime = Carbon::now()->subDays($this->backupRetentionDays)->getTimestamp();
-        $originalFileNamePrefix = $originalFileName . '.backup_';
+        $originalFileNamePrefix = $originalFileName.'.backup_';
 
         collect($this->files->files($this->backupPath))
             ->filter(fn (SplFileInfo $file) => $this->isEligibleForPruning($file, $originalFileNamePrefix, $cutoffTime))
@@ -99,8 +92,6 @@ class BackupManager
 
     /**
      * Determines if the pruning process should be skipped.
-     *
-     * @return bool
      */
     private function shouldSkipPruning(): bool
     {
@@ -111,11 +102,6 @@ class BackupManager
 
     /**
      * Checks if a file is eligible for pruning based on its name and modification time.
-     *
-     * @param SplFileInfo $file
-     * @param string $originalFileNamePrefix
-     * @param int $cutoffTime
-     * @return bool
      */
     private function isEligibleForPruning(SplFileInfo $file, string $originalFileNamePrefix, int $cutoffTime): bool
     {

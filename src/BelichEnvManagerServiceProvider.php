@@ -2,11 +2,11 @@
 
 namespace Daguilar\BelichEnvManager;
 
+use Daguilar\BelichEnvManager\Services\BackupManager;
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
 use Daguilar\BelichEnvManager\Services\Env\EnvParser;
 use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\BackupManager;
 use Daguilar\BelichEnvManager\Services\EnvManager;
 use Illuminate\Support\ServiceProvider; // Asegúrate de la ruta correcta
 
@@ -24,11 +24,11 @@ class BelichEnvManagerServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(EnvParser::class, function ($app) {
-            return new EnvParser();
+            return new EnvParser;
         });
 
         $this->app->singleton(EnvFormatter::class, function ($app) {
-            return new EnvFormatter();
+            return new EnvFormatter;
         });
 
         $this->app->singleton(EnvStorage::class, function ($app) {
@@ -36,7 +36,7 @@ class BelichEnvManagerServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(EnvEditor::class, function ($app) {
-            return new EnvEditor();
+            return new EnvEditor;
         });
 
         $this->app->singleton(EnvManager::class, function ($app) {

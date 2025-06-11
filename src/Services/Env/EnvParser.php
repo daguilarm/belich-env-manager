@@ -8,10 +8,6 @@ class EnvParser
 {
     /**
      * Parses the .env content string into a structured array.
-     *
-     * @param string $content
-     * 
-     * @return array
      */
     public function parse(string $content): array
     {
@@ -48,9 +44,9 @@ class EnvParser
         }
 
         // Add any trailing comments
-        if (!empty($pendingCommentsAbove)) {
+        if (! empty($pendingCommentsAbove)) {
             $trailingCommentLines = collect($pendingCommentsAbove)
-                ->map(fn($commentContent) => ['type' => 'comment', 'content' => $commentContent])
+                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
                 ->all();
             array_push($lines, ...$trailingCommentLines);
         }
@@ -61,66 +57,46 @@ class EnvParser
     /**
      * Checks if a line is empty and handles preceding comments if any.
      * Modifies $lines and $pendingCommentsAbove by reference.
-     *
-     * @param string $trimmedLine
-     * @param string $rawLine
-     * @param array &$lines
-     * @param array &$pendingCommentsAbove 
-     * 
-     * @return bool
      */
     private function isEmptyLine(string $trimmedLine, string $rawLine, array &$lines, array &$pendingCommentsAbove): bool
     {
-        if (!empty($trimmedLine)) {
+        if (! empty($trimmedLine)) {
             return false;
         }
 
-        if (!empty($pendingCommentsAbove)) {
+        if (! empty($pendingCommentsAbove)) {
             $commentLines = collect($pendingCommentsAbove)
-                ->map(fn($commentContent) => ['type' => 'comment', 'content' => $commentContent])
+                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
                 ->all();
             array_push($lines, ...$commentLines);
         }
         $lines[] = ['type' => 'empty'];
         $pendingCommentsAbove = []; // Reset after handling the empty line and its preceding comments
-        
+
         return true;
     }
 
     /**
      * Checks if a line is a comment and adds it to pending comments.
      * Modifies $pendingCommentsAbove by reference.
-     *
-     * @param string $trimmedLine
-     * @param string $rawLine
-     * @param array &$pendingCommentsAbove
-     * 
-     * @return bool
      */
     private function isCommentLine(string $trimmedLine, string $rawLine, array &$pendingCommentsAbove): bool
     {
-        if (!Str::startsWith($trimmedLine, '#')) {
+        if (! Str::startsWith($trimmedLine, '#')) {
             return false;
         }
         $pendingCommentsAbove[] = $rawLine; // Use rawLine to preserve original comment formatting
-        
+
         return true;
     }
 
     /**
      * Checks if a line is a variable assignment and parses it.
      * Modifies $lines and $pendingCommentsAbove by reference.
-     *
-     * @param string $trimmedLine
-     * @param string $rawLine
-     * @param array &$lines
-     * @param array &$pendingCommentsAbove
-     * 
-     * @return bool
      */
     private function isVariableLine(string $trimmedLine, string $rawLine, array &$lines, array &$pendingCommentsAbove): bool
     {
-        if (!preg_match('/^(export\s+)?(?<key>[A-Za-z_0-9]+)\s*=\s*(?<value>.*)?$/', $trimmedLine, $matches)) {
+        if (! preg_match('/^(export\s+)?(?<key>[A-Za-z_0-9]+)\s*=\s*(?<value>.*)?$/', $trimmedLine, $matches)) {
             return false;
         }
 
@@ -146,10 +122,6 @@ class EnvParser
     /**
      * Extracts an inline comment from a value string and cleans the value string.
      * The value string is passed by reference and will be modified.
-     *
-     * @param string $valueString
-     * 
-     * @return string|null
      */
     private function extractInlineCommentFromValueString(string &$valueString): ?string
     {
@@ -166,20 +138,16 @@ class EnvParser
 
     /**
      * Removes surrounding quotes from a value string if present.
-     *
-     * @param string $valueString
-     * 
-     * @return string 
      */
     private function unquoteValueString(string $valueString): string
     {
         // Check if the value is quoted with double or single quotes
         if (preg_match('/^"(.*)"$/s', $valueString, $double_q_matches)) {
             // Return content within double quotes
-            return $double_q_matches[1]; 
+            return $double_q_matches[1];
         } elseif (preg_match("/^'(.*)'$/s", $valueString, $single_q_matches)) {
             // Return content within single quotes
-            return $single_q_matches[1]; 
+            return $single_q_matches[1];
         }
 
         return $valueString; // Return as is if not quoted
@@ -188,16 +156,12 @@ class EnvParser
     /**
      * Handles lines that do not match other types (empty, comment, variable).
      * Treats them as comments to preserve their content.
-     *
-     * @param string $rawLine
-     * @param array &$lines
-     * @param array &$pendingCommentsAbove
      */
     private function handleFallbackLine(string $rawLine, array &$lines, array &$pendingCommentsAbove): void
     {
-        if (!empty($pendingCommentsAbove)) {
+        if (! empty($pendingCommentsAbove)) {
             $commentLines = collect($pendingCommentsAbove)
-                ->map(fn($commentContent) => ['type' => 'comment', 'content' => $commentContent])
+                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
                 ->all();
             array_push($lines, ...$commentLines);
         }

@@ -11,14 +11,18 @@ use LogicException;
 class EnvMultiSetter
 {
     protected EnvEditor $editor;
+
     protected EnvManager $envManager;
 
     /** @var array<int, array{key: string, value: string, inlineComment: string|null, commentsAbove: array<string>|null}> */
     protected array $operations = [];
 
     protected ?string $activeKey = null;
+
     protected ?string $activeValue = null;
+
     protected ?string $activeInlineComment = null;
+
     protected ?array $activeCommentsAbove = null;
 
     public function __construct(EnvEditor $editor, EnvManager $envManager)
@@ -31,8 +35,8 @@ class EnvMultiSetter
      * Sets the key and value for the current variable being configured in the batch.
      * If a previous variable was being configured, it's finalized and added to the batch.
      *
-     * @param string $key The variable key.
-     * @param string $value The variable value.
+     * @param  string  $key  The variable key.
+     * @param  string  $value  The variable value.
      * @return $this
      */
     public function setItem(string $key, string $value): self
@@ -50,8 +54,9 @@ class EnvMultiSetter
     /**
      * Adds an inline comment to the current variable being configured.
      *
-     * @param string|null $commentText The inline comment.
+     * @param  string|null  $commentText  The inline comment.
      * @return $this
+     *
      * @throws LogicException If setItem() was not called before.
      */
     public function commentLine(?string $commentText): self
@@ -60,14 +65,16 @@ class EnvMultiSetter
             throw new LogicException('setItem() must be called before adding an inline comment.');
         }
         $this->activeInlineComment = $commentText;
+
         return $this;
     }
 
     /**
      * Adds block comments above the current variable being configured.
      *
-     * @param array<string>|null $commentsArray The array of comment lines.
+     * @param  array<string>|null  $commentsArray  The array of comment lines.
      * @return $this
+     *
      * @throws LogicException If setItem() was not called before.
      */
     public function commentsAbove(?array $commentsArray): self
@@ -76,6 +83,7 @@ class EnvMultiSetter
             throw new LogicException('setItem() must be called before adding comments above.');
         }
         $this->activeCommentsAbove = $commentsArray;
+
         return $this;
     }
 

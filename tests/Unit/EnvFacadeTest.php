@@ -1,7 +1,7 @@
 <?php
 
-use Daguilar\BelichEnvManager\Services\EnvManager;
 use Daguilar\BelichEnvManager\Facades\Env;
+use Daguilar\BelichEnvManager\Services\EnvManager;
 use Illuminate\Support\Facades\App;
 
 test('facade resolves to env manager instance', function () {

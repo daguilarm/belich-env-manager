@@ -3,7 +3,7 @@
 use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
 
 beforeEach(function () {
-    $this->formatter = new EnvFormatter();
+    $this->formatter = new EnvFormatter;
 });
 
 test('it formats an empty array of lines as an empty string', function () {

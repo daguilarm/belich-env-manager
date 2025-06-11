@@ -8,14 +8,10 @@ class EnvFormatter
 {
     /**
      * Builds the .env content string from a structured array of lines.
-     *
-     * @param array $lines
-     * 
-     * @return string
      */
     public function format(array $lines): string
     {
-        $content = "";
+        $content = '';
         collect($lines)->each(function ($line) use (&$content) {
             match ($line['type']) {
                 'empty' => $content .= PHP_EOL,
@@ -25,14 +21,13 @@ class EnvFormatter
             };
         });
 
-        return $content ? rtrim($content, PHP_EOL).PHP_EOL : "";
+        return $content ? rtrim($content, PHP_EOL).PHP_EOL : '';
     }
 
     /**
      * Formats a single variable line, including its comments and value.
      *
-     * @param array $line The structured line data for a variable.
-     * 
+     * @param  array  $line  The structured line data for a variable.
      * @return string The formatted variable line string.
      */
     private function formatVariableLine(array $line): string
@@ -50,17 +45,13 @@ class EnvFormatter
             $variableString .= ' # '.$line['comment_inline'];
         }
 
-        $output .= $variableString . PHP_EOL;
+        $output .= $variableString.PHP_EOL;
 
         return $output;
     }
 
     /**
      * Formats the block comments that appear above a variable.
-     *
-     * @param array $commentsAbove
-     * 
-     * @return string
      */
     private function formatCommentsAbove(array $commentsAbove): string
     {
@@ -69,16 +60,12 @@ class EnvFormatter
         }
 
         return collect($commentsAbove)
-            ->map(fn (string $comment) => $comment . PHP_EOL)
+            ->map(fn (string $comment) => $comment.PHP_EOL)
             ->implode('');
     }
 
     /**
      * Quotes a value if it contains special characters or is an empty/boolean/null string.
-     *
-     * @param string $value
-     * 
-     * @return string
      */
     private function quoteValueIfNeeded(string $value): string
     {
@@ -86,11 +73,11 @@ class EnvFormatter
                        $value === '' ||
                        in_array(strtolower($value), ['true', 'false', 'null'], true);
 
-        return $needsQuotes ? '"' . str_replace('"', '\\"', $value) . '"' : $value;
+        return $needsQuotes ? '"'.str_replace('"', '\\"', $value).'"' : $value;
     }
 
     private function buildCoreVariableString(string $key, string $formattedValue, bool $isExported): string
     {
-        return ($isExported ? 'export ' : '') . $key . '=' . $formattedValue;
+        return ($isExported ? 'export ' : '').$key.'='.$formattedValue;
     }
 }

@@ -3,7 +3,6 @@
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
 use Daguilar\BelichEnvManager\Services\EnvManager;
-use Mockery\MockInterface;
 
 beforeEach(function () {
     // Mock dependencies

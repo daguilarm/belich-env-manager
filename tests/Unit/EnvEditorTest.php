@@ -3,7 +3,7 @@
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 
 beforeEach(function () {
-    $this->editor = new EnvEditor();
+    $this->editor = new EnvEditor;
 });
 
 test('it can set and get lines', function () {
@@ -98,7 +98,6 @@ test('set does not add empty line if comments above are provided for new variabl
     expect($lines[1]['comment_above'])->toBe(['# A comment']);
 });
 
-
 test('set updates an existing variable value', function () {
     $this->editor->setLines([
         ['type' => 'variable', 'key' => 'APP_NAME', 'value' => 'Old Name', 'comment_inline' => 'Old inline', 'comment_above' => ['# Old above'], 'export' => false],
@@ -184,7 +183,6 @@ test('remove cleans up consecutive empty lines', function () {
     ];
     expect($lines)->toBe($expectedLines);
 });
-
 
 test('cleanupEmptyLines reduces multiple empty lines to one', function () {
     $lines = [

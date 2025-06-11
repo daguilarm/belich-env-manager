@@ -3,7 +3,6 @@
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
 use Daguilar\BelichEnvManager\Services\EnvManager;
-use Mockery\MockInterface;
 
 beforeEach(function () {
     $this->editorMock = Mockery::mock(EnvEditor::class);
