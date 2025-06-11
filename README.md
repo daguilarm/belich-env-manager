@@ -131,13 +131,6 @@ Backups are created automatically when Env::save() or EnvManager::save() is call
 composer test
 ```
 
-or
-
-```bash 
-#for tesing parallel
-composer test-p
-```
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or create an issue for any bugs or feature requests.
