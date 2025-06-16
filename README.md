@@ -8,6 +8,8 @@ A simple and versatil package to programmatically manage your Laravel `.env` fil
 
 It allows you to read, write, and update environment variables with ease, including support for comments and automatic backups.
 
+> **Warning:** This package is currently in a **beta stage**. The `main` branch contains the latest beta version. While it aims to be stable, please use it with caution in production environments and ensure you have backups. We appreciate any feedback or bug reports during this phase.
+
 ## Features
 
 *   **Read and Parse**: 
@@ -47,7 +49,7 @@ It allows you to read, write, and update environment variables with ease, includ
 You can install the package via composer:
 
 ```bash
-composer require daguilar/belich-env-manager
+composer require daguilar/belich-env-manager:dev-main
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
