@@ -40,6 +40,23 @@ class EnvManager
     }
 
     /**
+     * Returns the current .env content as an associative array.
+     * Ignores empty lines and comments.
+     */
+    public function getEnvContentAsArray(): array
+    {
+        $array = [];
+        foreach ($this->editor->getLines() as $line) {
+            if ($line->isVariable()) {
+                // Assuming getVariable() returns an object or array with 'key' and 'value'
+                $variable = $line->getVariable();
+                $array[$variable['key']] = $variable['value'];
+            }
+        }
+        return $array;
+    }
+    
+    /**
      * Writes content to the .env file.
      */
     public function setEnvContent(string $content): bool
