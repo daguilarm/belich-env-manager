@@ -47,10 +47,11 @@ class EnvManager
     {
         $array = [];
         foreach ($this->editor->getLines() as $line) {
-            if ($line->isVariable()) {
-                // Assuming getVariable() returns an object or array with 'key' and 'value'
-                $variable = $line->getVariable();
-                $array[$variable['key']] = $variable['value'];
+            // Assuming $line is an array with a 'type' key
+            // and 'key'/'value' keys if type is 'variable'
+            if (isset($line['type']) && $line['type'] === 'variable' && isset($line['key'])) {
+                // Use null coalescing for value in case it's not set for some reason
+                $array[$line['key']] = $line['value'] ?? null;
             }
         }
         return $array;
