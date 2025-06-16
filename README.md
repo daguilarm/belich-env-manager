@@ -87,6 +87,17 @@ Please, remember this is a **beta version**, use it with the utmost caution.
 
 use Daguilar\BelichEnvManager\Facades\Env;
 
+// Get all the data as .env 
+$allTheDataAsEnv = Env::getEnvContent();
+
+// Get all the data as Collection:
+$allTheDataAsCollection = Env::getEnvContentAsCollection();
+
+// Get all the data as array:
+$allTheDataAsArray = Env::getEnvContentAsArray();
+
+// Other operations with the ,env file data:
+
 // Get a value
 $appName = Env::get('APP_NAME');
 
