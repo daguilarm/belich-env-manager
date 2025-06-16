@@ -1,21 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Daguilar\BelichEnvManager\Services;
 
-use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
-use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
-use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Daguilar\BelichEnvManager\Services\Env\{
+    EnvEditor,
+    EnvFormatter,
+    EnvMultiSetter,
+    EnvParser,
+    EnvStorage,
+    EnvVariableSetter
+};
 
 class EnvManager
 {
     protected string $envPath;
-
-    protected bool $backupsEnabled; // Backup creation can be disabled
+    protected bool $backupsEnabled;
 
     public function __construct(
         protected readonly Filesystem $files,
@@ -27,12 +31,12 @@ class EnvManager
         protected readonly EnvEditor $editor
     ) {
         $this->envPath = app()->environmentFilePath();
-        $this->backupsEnabled = $this->config->get('belich-env-manager.backup.enabled', true);
+        $this->backupsEnabled = $config->get('belich-env-manager.backup.enabled', true);
         $this->load();
     }
 
     /**
-     * Returns the current .env content as a string.
+     * Get formatted .env content as string.
      */
     public function getEnvContent(): string
     {
@@ -40,53 +44,32 @@ class EnvManager
     }
 
     /**
-     * Returns the current .env content as an associative array.
-     * Uses generators for memory efficiency and strict typing.
+     * Get environment variables as array.
      */
     public function getEnvContentAsArray(): array
     {
-        return iterator_to_array($this->parseEnvLines(), false);
-    }
-
-    /**
-     * Generator that parses .env lines yielding key-value pairs.
-     * Implements SOLID's Single Responsibility Principle.
-     */
-    private function parseEnvLines(): \Generator
-    {
-        foreach ($this->editor->getLines() as $line) {
-            if ($this->isValidEnvVariable($line)) {
-                yield $line['key'] => $line['value'] ?? null;
-            }
-        }
-    }
-
-    /**
-     * Validates if a line represents a valid environment variable.
-     * Follows Open/Closed Principle for validation rules.
-     */
-    private function isValidEnvVariable(array $line): bool
-    {
-        return isset($line['type'], $line['key']) 
-            && $line['type'] === 'variable'
-            && !empty(trim($line['key'] ?? ''));
+        return $this->parseEnvVariables()->toArray();
     }
     
     /**
-     * Writes content to the .env file.
+     * Get environment variables as collection.
      */
-    public function setEnvContent(string $content): bool
+    public function getEnvContentAsCollection(): Collection
     {
-        if ($this->backupsEnabled) {
-            $this->backupManager->create($this->envPath);
-        }
-        $result = $this->storage->write($this->envPath, $content);
-
-        return $result;
+        return $this->parseEnvVariables();
     }
 
     /**
-     * Loads and parses the .env file into memory.
+     * Write content to .env file.
+     */
+    public function setEnvContent(string $content): bool
+    {
+        $this->createBackupIfEnabled();
+        return $this->storage->write($this->envPath, $content);
+    }
+
+    /**
+     * Load and parse .env file into memory.
      */
     public function load(): self
     {
@@ -98,7 +81,7 @@ class EnvManager
     }
 
     /**
-     * Checks if a key exists.
+     * Check if key exists.
      */
     public function has(string $key): bool
     {
@@ -106,18 +89,15 @@ class EnvManager
     }
 
     /**
-     * Gets the value of a key.
-     *
-     * @param  mixed  $default
+     * Get value for given key.
      */
-    public function get(string $key, $default = null): ?string
+    public function get(string $key, mixed $default = null): ?string
     {
         return $this->editor->get($key, $default);
     }
 
     /**
-     * Begins the process of setting or updating a key's value.
-     * Returns a fluent setter object to optionally add comments.
+     * Set key-value pair with fluent interface.
      */
     public function set(string $key, string $value): EnvVariableSetter
     {
@@ -125,7 +105,7 @@ class EnvManager
     }
 
     /**
-     * Begins a batch operation for setting multiple environment variables.
+     * Start batch set operation.
      */
     public function multipleSet(): EnvMultiSetter
     {
@@ -133,22 +113,53 @@ class EnvManager
     }
 
     /**
-     * Saves the current in-memory state to the .env file.
+     * Save current state to .env file.
      */
     public function save(): bool
     {
-        $newContent = $this->formatter->format($this->editor->getLines());
-
-        return $this->setEnvContent($newContent);
+        return $this->setEnvContent(
+            $this->formatter->format($this->editor->getLines())
+        );
     }
 
     /**
-     * Removes a key from memory.
+     * Remove key from environment.
      */
     public function remove(string $key): self
     {
         $this->editor->remove($key);
-
         return $this;
+    }
+
+    /**
+     * Parse valid environment variables.
+     */
+    private function parseEnvVariables(): Collection
+    {
+        return collect($this->editor->getLines())
+            ->filter($this->isValidEnvVariable(...))
+            ->mapWithKeys(fn(array $line) => [
+                $line['key'] => $line['value'] ?? null
+            ]);
+    }
+
+    /**
+     * Validate environment variable structure.
+     */
+    private function isValidEnvVariable(array $line): bool
+    {
+        return isset($line['type'], $line['key']) 
+            && $line['type'] === 'variable'
+            && trim($line['key']) !== '';
+    }
+
+    /**
+     * Create backup if enabled.
+     */
+    private function createBackupIfEnabled(): void
+    {
+        if ($this->backupsEnabled) {
+            $this->backupManager->create($this->envPath);
+        }
     }
 }
