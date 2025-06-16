@@ -49,7 +49,13 @@ It allows you to read, write, and update environment variables with ease, includ
 You can install the package via composer:
 
 ```bash
-composer require daguilar/belich-env-manager:dev-main
+composer require daguilar/belich-env-manager:dev-master
+```
+
+Or in your composer file:
+
+```bash
+"daguilar/belich-env-manager": "dev-master"
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
