@@ -49,6 +49,10 @@ You can install the package via composer:
 ```bash
 composer require daguilar/belich-env-manager
 ```
+Or in your composer file:
+```bash
+"daguilar/belich-env-manager": "^1.0.0-beta"
+````
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
 
@@ -154,6 +158,20 @@ class YourService
     }
 }
 ```
+
+You can get all the file in two formats:
+
+a) In .env format, using:
+
+```php 
+Env::getEnvContent();
+```
+
+b) As array:
+
+```php 
+Env::getEnvContentAsArray();
+````
 
 ## Backup Management
 
