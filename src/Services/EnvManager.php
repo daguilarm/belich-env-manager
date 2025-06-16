@@ -41,20 +41,35 @@ class EnvManager
 
     /**
      * Returns the current .env content as an associative array.
-     * Ignores empty lines and comments.
+     * Uses generators for memory efficiency and strict typing.
      */
     public function getEnvContentAsArray(): array
     {
-        $array = [];
+        return iterator_to_array($this->parseEnvLines(), false);
+    }
+
+    /**
+     * Generator that parses .env lines yielding key-value pairs.
+     * Implements SOLID's Single Responsibility Principle.
+     */
+    private function parseEnvLines(): \Generator
+    {
         foreach ($this->editor->getLines() as $line) {
-            // Assuming $line is an array with a 'type' key
-            // and 'key'/'value' keys if type is 'variable'
-            if (isset($line['type']) && $line['type'] === 'variable' && isset($line['key'])) {
-                // Use null coalescing for value in case it's not set for some reason
-                $array[$line['key']] = $line['value'] ?? null;
+            if ($this->isValidEnvVariable($line)) {
+                yield $line['key'] => $line['value'] ?? null;
             }
         }
-        return $array;
+    }
+
+    /**
+     * Validates if a line represents a valid environment variable.
+     * Follows Open/Closed Principle for validation rules.
+     */
+    private function isValidEnvVariable(array $line): bool
+    {
+        return isset($line['type'], $line['key']) 
+            && $line['type'] === 'variable'
+            && !empty(trim($line['key'] ?? ''));
     }
     
     /**
