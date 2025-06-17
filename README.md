@@ -41,13 +41,16 @@ It allows you to read, write, and update environment variables with ease, includ
 *   **Fluent API**: 
     - Chain methods for a more expressive way to manage variables (e.g., `Env::set('KEY', 'value')->save()`).
 *   **Facade and Dependency Injection**: 
-    - Usable via a convenient `Env` facade or by injecting the `EnvManager` service.
+    - Usable via a convenient `Env` and `EnvCollect` facades or by injecting the `EnvManager` or `EnvCollectManager` class service.
 *   **Configuration**: 
     - Publishable configuration file for backup settings.
 *   **PSR-12 Compliant**: 
     - Code follows PSR-12 coding standards.
 *   **PHP 8.3+**: 
     - Leverages modern PHP features.
+*   **Laravel 12.0+**: 
+   
+> Please note that this project has been developed with **Laravel 12** and **PHP 8.3** in mind, so it may not work properly with older versions.
 
 ## Installation
 
