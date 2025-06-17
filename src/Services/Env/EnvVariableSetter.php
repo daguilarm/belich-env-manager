@@ -17,6 +17,10 @@ class EnvVariableSetter
 
     protected string $value;
 
+    protected ?string $currentInlineComment = null;
+
+    protected ?array $currentCommentsAbove = null;
+
     /**
      * EnvVariableSetter constructor.
      */
@@ -27,8 +31,10 @@ class EnvVariableSetter
         $this->key = $key;
         $this->value = $value;
 
+        // Initialize comment states
+        // The initial call to editor->set will use these nulls,
+        // effectively preserving existing comments if any, or setting none if new.
         // Set the value initially, preserving any existing comments for now.
-        // `null` for comment parameters in `editor->set` means "do not change this comment type".
         $this->editor->set($this->key, $this->value, null, null);
     }
 
@@ -37,7 +43,8 @@ class EnvVariableSetter
      */
     public function commentLine(?string $commentText): self
     {
-        $this->editor->set($this->key, $this->value, $commentText, null);
+        $this->currentInlineComment = $commentText;
+        $this->editor->set($this->key, $this->value, $this->currentInlineComment, $this->currentCommentsAbove);
 
         return $this;
     }
@@ -47,7 +54,8 @@ class EnvVariableSetter
      */
     public function commentsAbove(?array $commentsArray): self
     {
-        $this->editor->set($this->key, $this->value, null, $commentsArray);
+        $this->currentCommentsAbove = $commentsArray;
+        $this->editor->set($this->key, $this->value, $this->currentInlineComment, $this->currentCommentsAbove);
 
         return $this;
     }
