@@ -60,13 +60,13 @@ class EnvEditor
      * Sets or updates a variable key with a new value and optional comments.
      * If the key exists, it's updated. Otherwise, a new line is appended.
      */
-    public function set(string $key, string $value, ?string $inlineComment = null, ?array $commentsAbove = null): void
+    public function set(string $key, string $value, ?string $inlineComment = null, ?array $commentsAbove = null, bool $export = false): void
     {
         $index = $this->findLineIndexByKey($key);
 
         $index !== null 
-            ? $this->updateExistingLine($index, $value, $inlineComment, $commentsAbove)
-            : $this->appendNewLine($key, $value, $inlineComment, $commentsAbove);
+            ? $this->updateExistingLine($index, $value, $inlineComment, $commentsAbove, $export)
+            : $this->appendNewLine($key, $value, $inlineComment, $commentsAbove, $export);
     }
 
     /**
@@ -96,9 +96,10 @@ class EnvEditor
     /**
      * Updates an existing line at a specific index.
      */
-    private function updateExistingLine(int $index, string $value, ?string $inlineComment, ?array $commentsAbove): void
+    private function updateExistingLine(int $index, string $value, ?string $inlineComment, ?array $commentsAbove, bool $export): void
     {
         $this->lines[$index]['value'] = $value;
+        $this->lines[$index]['export'] = $export;
         
         if ($inlineComment !== null) {
             $this->lines[$index]['comment_inline'] = $inlineComment ?: null;
@@ -116,7 +117,7 @@ class EnvEditor
     /**
      * Appends a new variable line to the lines array.
      */
-    private function appendNewLine(string $key, string $value, ?string $inlineComment, ?array $commentsAbove): void
+    private function appendNewLine(string $key, string $value, ?string $inlineComment, ?array $commentsAbove, bool $export): void
     {
         if (!empty($this->lines)) {
             $lastLine = end($this->lines);
@@ -131,7 +132,7 @@ class EnvEditor
             'value' => $value,
             'comment_inline' => $inlineComment,
             'comment_above' => $commentsAbove ?? [],
-            'export' => false,
+            'export' => $export,
         ], fn ($v) => $v !== null);
     }
 
