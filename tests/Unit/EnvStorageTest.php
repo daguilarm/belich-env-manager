@@ -1,5 +1,8 @@
 <?php
 
+// Unit tests for the EnvStorage class.
+// This class acts as an abstraction layer for filesystem operations (read/write)
+// related to .env files, using Laravel's Filesystem component.
 use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
 use Illuminate\Filesystem\Filesystem;
 
@@ -13,62 +16,75 @@ afterEach(function () {
     Mockery::close();
 });
 
-test('read returns content for existing file', function () {
-    $expectedContent = 'APP_NAME=Laravel';
+describe('File Reading Operations', function () {
+    // Verifies that existing file content is correctly returned.
+    it('returns content for an existing file', function () {
+        $expectedContent = 'APP_NAME=Laravel';
 
-    $this->filesystemMock
-        ->shouldReceive('exists')
-        ->with($this->testFilePath)
-        ->once()
-        ->andReturn(true);
+        $this->filesystemMock
+            ->shouldReceive('exists')
+            ->with($this->testFilePath)
+            ->once()
+            ->andReturn(true);
 
-    $this->filesystemMock
-        ->shouldReceive('get')
-        ->with($this->testFilePath)
-        ->once()
-        ->andReturn($expectedContent);
+        $this->filesystemMock
+            ->shouldReceive('get')
+            ->with($this->testFilePath)
+            ->once()
+            ->andReturn($expectedContent);
 
-    $content = $this->envStorage->read($this->testFilePath);
+        $content = $this->envStorage->read($this->testFilePath);
 
-    expect($content)->toBe($expectedContent);
+        expect($content)->toBe($expectedContent);
+    });
+
+    // Ensures that reading a non-existent file results in an empty string, not an error.
+    it('returns an empty string for a non-existing file', function () {
+        $this->filesystemMock
+            ->shouldReceive('exists')
+            ->with($this->testFilePath)
+            ->once()
+            ->andReturn(false);
+
+        // Filesystem::get() should not be called if the file doesn't exist.
+        $this->filesystemMock->shouldNotReceive('get');
+
+        $content = $this->envStorage->read($this->testFilePath);
+
+        expect($content)->toBe('');
+    });
 });
 
-test('read returns empty string for non-existing file', function () {
-    $this->filesystemMock
-        ->shouldReceive('exists')
-        ->with($this->testFilePath)
-        ->once()
-        ->andReturn(false);
+describe('File Writing Operations', function () {
+    // Tests the successful writing of content to a file.
+    it('successfully puts content to a file', function () {
+        $contentToWrite = 'NEW_VAR=new_value';
 
-    $this->filesystemMock->shouldNotReceive('get'); // Should not attempt to get content
+        $this->filesystemMock
+            ->shouldReceive('put')
+            ->with($this->testFilePath, $contentToWrite)
+            ->once()
+            ->andReturn(true); // Filesystem::put can return int (bytes) or bool.
 
-    $content = $this->envStorage->read($this->testFilePath);
+        $result = $this->envStorage->write($this->testFilePath, $contentToWrite);
+        expect($result)->toBeTrue();
+    });
 
-    expect($content)->toBe('');
+    // Verifies that an exception is thrown if the filesystem write operation fails.
+    it('throws an exception on write failure', function () {
+        $contentToWrite = 'FAIL_VAR=fail_value';
+
+        $this->filesystemMock
+            ->shouldReceive('put')
+            ->with($this->testFilePath, $contentToWrite)
+            ->once()
+            ->andReturn(false);
+
+        $action = function () use ($contentToWrite) {
+            $this->envStorage->write($this->testFilePath, $contentToWrite);
+        };
+        $expectedMessage = "Could not write to .env file: {$this->testFilePath}";
+
+        expect($action)->toThrow(Exception::class, $expectedMessage);
+    });
 });
-
-test('write successfully puts content to file', function () {
-    $contentToWrite = 'NEW_VAR=new_value';
-
-    $this->filesystemMock
-        ->shouldReceive('put')
-        ->with($this->testFilePath, $contentToWrite)
-        ->once()
-        ->andReturn(true); // Or number of bytes, Filesystem::put can return int or bool
-
-    $result = $this->envStorage->write($this->testFilePath, $contentToWrite);
-    expect($result)->toBeTrue();
-});
-
-test('write throws exception on failure', function () {
-    $contentToWrite = 'FAIL_VAR=fail_value';
-
-    $this->filesystemMock
-        ->shouldReceive('put')
-        ->with($this->testFilePath, $contentToWrite)
-        ->once()
-        ->andReturn(false);
-
-    $expectedMessage = "Could not write to .env file: {$this->testFilePath}";
-    $this->envStorage->write($this->testFilePath, $contentToWrite);
-})->throws(Exception::class, $expectedMessage);

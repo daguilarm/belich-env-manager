@@ -1,5 +1,9 @@
 <?php
 
+// Unit tests for the EnvMultiSetter class.
+// This class provides a fluent interface for setting multiple environment variables,
+// along with their respective comments, in a batch. Changes are applied
+// to the EnvEditor upon calling save(), which then delegates to EnvManager.
 use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
 use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
 use Daguilar\BelichEnvManager\Services\EnvManager;
@@ -15,120 +19,138 @@ afterEach(function () {
     Mockery::close();
 });
 
-test('it can set multiple items and save them', function () {
-    $this->editorMock->shouldReceive('set')
-        ->with('KEY1', 'value1', 'inline1', ['above1'])
-        ->once();
-    $this->editorMock->shouldReceive('set')
-        ->with('KEY2', 'value2', 'inline2', ['above2']) // Added comments for the second one
-        ->once();
+describe('EnvMultiSetter Core Functionality', function () {
+    // Verifies that multiple items, each with their own comments, can be set
+    // and that EnvEditor->set() is called for each item with the correct parameters.
+    it('can set multiple items with individual comments and save them', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('KEY1', 'value1', 'inline1', ['above1'])
+            ->once();
+        $this->editorMock->shouldReceive('set')
+            ->with('KEY2', 'value2', 'inline2', ['above2'])
+            ->once();
 
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
 
-    $result = $this->multiSetter
-        ->setItem('KEY1', 'value1')
-        ->commentLine('inline1')
-        ->commentsAbove(['above1'])
-        ->setItem('KEY2', 'value2')
-        ->commentLine('inline2')
-        ->commentsAbove(['above2'])
-        ->save();
+        $result = $this->multiSetter
+            ->setItem('KEY1', 'value1')
+            ->commentLine('inline1')
+            ->commentsAbove(['above1'])
+            ->setItem('KEY2', 'value2')
+            ->commentLine('inline2')
+            ->commentsAbove(['above2'])
+            ->save();
 
-    expect($result)->toBeTrue();
+        expect($result)->toBeTrue();
+    });
+
+    // Ensures that if save() is called after setting an item and its comments,
+    // the last item's state is correctly processed and passed to EnvEditor->set().
+    it('save finalizes the last item before processing operations', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('LAST_KEY', 'last_value', 'last_inline', null)
+            ->once();
+
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter
+            ->setItem('LAST_KEY', 'last_value')
+            ->commentLine('last_inline')
+            ->save();
+
+        expect($result)->toBeTrue();
+    });
+
+    // Tests that save() can be called even if no items were set,
+    // in which case EnvEditor->set() should not be called.
+    it('save works correctly with no items set', function () {
+        $this->editorMock->shouldNotReceive('set');
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter->save();
+
+        expect($result)->toBeTrue();
+    });
+
+    // Verifies that the internal state (operations queue, active key) is reset after save(),
+    // preventing previously set items from being re-processed on a subsequent save.
+    it('state is reset after save', function () {
+        $this->editorMock->shouldReceive('set')->with('KEY1', 'value1', null, null)->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+        $this->multiSetter->setItem('KEY1', 'value1')->save();
+
+        $reflection = new ReflectionClass(EnvMultiSetter::class);
+        $operationsProp = $reflection->getProperty('operations');
+        $operationsProp->setAccessible(true);
+        expect($operationsProp->getValue($this->multiSetter))->toBeEmpty();
+
+        $activeKeyProp = $reflection->getProperty('activeKey');
+        $activeKeyProp->setAccessible(true);
+        expect($activeKeyProp->getValue($this->multiSetter))->toBeNull();
+
+        // Second save should only process new items.
+        $this->editorMock->shouldReceive('set')->with('KEY2', 'value2', null, null)->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+        $this->multiSetter->setItem('KEY2', 'value2')->save();
+    });
 });
 
-test('save finalizes the last item before processing operations', function () {
-    $this->editorMock->shouldReceive('set')
-        ->with('LAST_KEY', 'last_value', 'last_inline', null)
-        ->once();
+describe('EnvMultiSetter Item Configuration Scenarios', function () {
+    // Tests setting an item without any associated comments.
+    it('can set an item without any comments', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('SIMPLE_KEY', 'simple_value', null, null)
+            ->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
 
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+        $result = $this->multiSetter
+            ->setItem('SIMPLE_KEY', 'simple_value')
+            ->save();
 
-    $result = $this->multiSetter
-        ->setItem('LAST_KEY', 'last_value')
-        ->commentLine('last_inline')
-        ->save();
+        expect($result)->toBeTrue();
+    });
 
-    expect($result)->toBeTrue();
+    // Tests setting an item with only an inline comment.
+    it('can set an item with only inline comment', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('INLINE_ONLY_KEY', 'inline_value', 'just inline', null)
+            ->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter
+            ->setItem('INLINE_ONLY_KEY', 'inline_value')
+            ->commentLine('just inline')
+            ->save();
+
+        expect($result)->toBeTrue();
+    });
+
+    // Tests setting an item with only comments above it.
+    it('can set an item with only comments above', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('ABOVE_ONLY_KEY', 'above_value', null, ['# just above'])
+            ->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter
+            ->setItem('ABOVE_ONLY_KEY', 'above_value')
+            ->commentsAbove(['# just above'])
+            ->save();
+
+        expect($result)->toBeTrue();
+    });
 });
 
-test('save works correctly with no items set', function () {
-    $this->editorMock->shouldNotReceive('set'); // No items, so set should not be called
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+describe('EnvMultiSetter Guard Clauses', function () {
+    // Ensures that attempting to set an inline comment before an item (key/value)
+    // has been defined throws a LogicException.
+    it('calling commentLine before setItem throws LogicException', function () {
+        $this->multiSetter->commentLine('test');
+    })->throws(LogicException::class, 'setItem() must be called before adding an inline comment.');
 
-    $result = $this->multiSetter->save();
-
-    expect($result)->toBeTrue();
-});
-
-test('calling commentLine before setItem throws LogicException', function () {
-    $this->multiSetter->commentLine('test');
-})->throws(LogicException::class, 'setItem() must be called before adding an inline comment.');
-
-test('calling commentsAbove before setItem throws LogicException', function () {
-    $this->multiSetter->commentsAbove(['test']);
-})->throws(LogicException::class, 'setItem() must be called before adding comments above.');
-
-test('state is reset after save', function () {
-    // First save
-    $this->editorMock->shouldReceive('set')->with('KEY1', 'value1', null, null)->once();
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
-    $this->multiSetter->setItem('KEY1', 'value1')->save();
-
-    // Reflection to check internal state (for testing purposes only)
-    $reflection = new ReflectionClass(EnvMultiSetter::class);
-
-    $operationsProp = $reflection->getProperty('operations');
-    $operationsProp->setAccessible(true);
-    expect($operationsProp->getValue($this->multiSetter))->toBeEmpty();
-
-    $activeKeyProp = $reflection->getProperty('activeKey');
-    $activeKeyProp->setAccessible(true);
-    expect($activeKeyProp->getValue($this->multiSetter))->toBeNull();
-
-    // Second save, should not re-process old operations
-    $this->editorMock->shouldReceive('set')->with('KEY2', 'value2', null, null)->once();
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true); // Save is called again
-    $this->multiSetter->setItem('KEY2', 'value2')->save();
-});
-
-test('it can set an item without any comments', function () {
-    $this->editorMock->shouldReceive('set')
-        ->with('SIMPLE_KEY', 'simple_value', null, null)
-        ->once();
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
-
-    $result = $this->multiSetter
-        ->setItem('SIMPLE_KEY', 'simple_value')
-        ->save();
-
-    expect($result)->toBeTrue();
-});
-
-test('it can set an item with only inline comment', function () {
-    $this->editorMock->shouldReceive('set')
-        ->with('INLINE_ONLY_KEY', 'inline_value', 'just inline', null)
-        ->once();
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
-
-    $result = $this->multiSetter
-        ->setItem('INLINE_ONLY_KEY', 'inline_value')
-        ->commentLine('just inline')
-        ->save();
-
-    expect($result)->toBeTrue();
-});
-
-test('it can set an item with only comments above', function () {
-    $this->editorMock->shouldReceive('set')
-        ->with('ABOVE_ONLY_KEY', 'above_value', null, ['# just above'])
-        ->once();
-    $this->managerMock->shouldReceive('save')->once()->andReturn(true);
-
-    $result = $this->multiSetter
-        ->setItem('ABOVE_ONLY_KEY', 'above_value')
-        ->commentsAbove(['# just above'])
-        ->save();
-
-    expect($result)->toBeTrue();
+    // Ensures that attempting to set comments above before an item (key/value)
+    // has been defined throws a LogicException.
+    it('calling commentsAbove before setItem throws LogicException', function () {
+        $this->multiSetter->commentsAbove(['test']);
+    })->throws(LogicException::class, 'setItem() must be called before adding comments above.');
 });
