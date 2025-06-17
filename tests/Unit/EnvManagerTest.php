@@ -165,6 +165,7 @@ describe('Variable Get, Set, and Update Operations', function () {
                         return true;
                     }
                 }
+
                 return false;
             }))
             ->andReturn($expectedFormattedContent);
@@ -328,7 +329,8 @@ describe('Variable Removal', function () {
             ->shouldReceive('format')->once()
             ->with(Mockery::on(function ($lines) {
                 $keys = array_column(array_filter($lines, fn ($l) => $l['type'] === 'variable'), 'key');
-                return in_array('KEY1', $keys) && !in_array('KEY2', $keys) && in_array('KEY3', $keys);
+
+                return in_array('KEY1', $keys) && ! in_array('KEY2', $keys) && in_array('KEY3', $keys);
             }))
             ->andReturn($expectedFormatted);
         $this->envStorage->shouldReceive('write')->once()->andReturn(true);

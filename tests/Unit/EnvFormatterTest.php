@@ -82,6 +82,16 @@ describe('Comment and Export Formatting', function () {
         $result = $this->formatter->format($lines);
         expect($result)->toBe('export MY_EXPORTED_VAR=secret'.PHP_EOL);
     });
+
+    // Tests a variable with export, inline comment, and comments above.
+    it('formats a variable with export prefix and all comments', function () {
+        $lines = [
+            ['type' => 'variable', 'key' => 'EXPORT_ALL', 'value' => 'all_value', 'comment_inline' => 'Inline for export', 'comment_above' => ['# Above for export'], 'export' => true],
+        ];
+        $result = $this->formatter->format($lines);
+        $expected = '# Above for export'.PHP_EOL.'export EXPORT_ALL=all_value # Inline for export'.PHP_EOL;
+        expect($result)->toBe($expected);
+    });
 });
 
 describe('Value Quoting and Complex Scenarios', function () {
@@ -104,6 +114,8 @@ describe('Value Quoting and Complex Scenarios', function () {
         'null string' => ['null', '"null"'], // "null" is a string that needs quoting
         'simple numeric string' => ['12345', '12345'], // Simple numerics are not quoted
         'simple string' => ['simple', 'simple'], // Simple strings without special chars/spaces are not quoted
+        'string that is just a quote' => ['"', '"\\""'],
+        'string that is just a hash' => ['#', '"#"'],
     ]);
 
     // Tests formatting of a sequence of different line types.
@@ -143,4 +155,15 @@ describe('Value Quoting and Complex Scenarios', function () {
         expect(substr_count($resultMultiple, PHP_EOL))->toBe(2);
         expect(str_ends_with($resultMultiple, PHP_EOL))->toBeTrue();
     });
+
+    // Tests formatting of multiple lines in 'comment_above'.
+    it('formats a variable line with multiple lines in comments_above', function () {
+        $lines = [
+            ['type' => 'variable', 'key' => 'MULTI_ABOVE', 'value' => 'multi_val', 'comment_inline' => null, 'comment_above' => ['# Line 1', '# Line 2', '# Line 3'], 'export' => false],
+        ];
+        $result = $this->formatter->format($lines);
+        $expected = '# Line 1'.PHP_EOL.'# Line 2'.PHP_EOL.'# Line 3'.PHP_EOL.'MULTI_ABOVE=multi_val'.PHP_EOL;
+        expect($result)->toBe($expected);
+    });
+
 });

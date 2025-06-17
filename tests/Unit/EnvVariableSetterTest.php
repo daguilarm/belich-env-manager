@@ -88,6 +88,60 @@ describe('EnvVariableSetter Functionality', function () {
         expect($result)->toBeInstanceOf(EnvVariableSetter::class); // Ensures fluent interface
     });
 
+    // Verifies the reverse order of chaining: commentsAbove then commentLine.
+    it('can chain commentsAbove and then commentLine, updating editor state sequentially', function () {
+        $commentsAbove = ['# Initial Above'];
+        $inlineComment = 'Final Inline';
+
+        // 1. commentsAbove is called
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', null, $commentsAbove) // currentInlineComment is null initially
+            ->once();
+
+        // 2. commentLine is called
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', $inlineComment, $commentsAbove) // currentCommentsAbove should be preserved
+            ->once();
+
+        $result = $this->setter->commentsAbove($commentsAbove)->commentLine($inlineComment);
+
+        expect($result)->toBeInstanceOf(EnvVariableSetter::class);
+    });
+
+    // Tests that multiple calls to commentLine result in the last one taking precedence.
+    it('multiple commentLine calls use the last value', function () {
+        $firstInline = 'First inline';
+        $secondInline = 'Second inline takes precedence';
+
+        // First call to commentLine
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', $firstInline, null)
+            ->once();
+        // Second call to commentLine
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', $secondInline, null) // currentCommentsAbove is still null
+            ->once();
+
+        $this->setter->commentLine($firstInline)->commentLine($secondInline);
+    });
+
+    // Tests that multiple calls to commentsAbove result in the last one taking precedence.
+    it('multiple commentsAbove calls use the last value', function () {
+        $firstAbove = ['# First above'];
+        $secondAbove = ['# Second above takes precedence'];
+
+        // First call to commentsAbove
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', null, $firstAbove)
+            ->once();
+        // Second call to commentsAbove
+        $this->editorMock->shouldReceive('set')
+            ->with('TEST_KEY', 'test_value', null, $secondAbove) // currentInlineComment is still null
+            ->once();
+
+        $this->setter->commentsAbove($firstAbove)->commentsAbove($secondAbove);
+    });
+
     // Ensures that calling save() on the setter delegates to EnvManager->save().
     it('save calls env manager save', function () {
         $this->managerMock->shouldReceive('save')->once()->andReturn(true);

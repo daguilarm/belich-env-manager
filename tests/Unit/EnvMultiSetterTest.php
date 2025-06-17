@@ -93,6 +93,36 @@ describe('EnvMultiSetter Core Functionality', function () {
         $this->managerMock->shouldReceive('save')->once()->andReturn(true);
         $this->multiSetter->setItem('KEY2', 'value2')->save();
     });
+
+    // Verifies that if setItem is called multiple times, comments apply to the last set item.
+    it('comments apply to the correct item after multiple setItem calls', function () {
+        // KEY1 is set, then KEY2 is set. Comments should apply to KEY2.
+        // finalizeCurrentItem for KEY1 will be called when setItem for KEY2 is called.
+        // KEY1 should be added to operations with null comments.
+        $this->editorMock->shouldReceive('set')
+            ->with('KEY1', 'value1', null, null) // This is from finalizeCurrentItem for KEY1
+            ->once();
+        // Then KEY2 is set with its comments.
+        $this->editorMock->shouldReceive('set')
+            ->with('KEY2', 'value2', 'inline_for_key2', ['above_for_key2'])
+            ->once();
+
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter
+            ->setItem('KEY1', 'value1')
+            ->setItem('KEY2', 'value2') // This finalizes KEY1
+            ->commentLine('inline_for_key2')
+            ->commentsAbove(['above_for_key2'])
+            ->save(); // This finalizes KEY2 and saves all operations
+
+        expect($result)->toBeTrue();
+
+        // Second save should only process new items.
+        $this->editorMock->shouldReceive('set')->with('KEY2', 'value2', null, null)->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+        $this->multiSetter->setItem('KEY2', 'value2')->save();
+    });
 });
 
 describe('EnvMultiSetter Item Configuration Scenarios', function () {
@@ -139,6 +169,21 @@ describe('EnvMultiSetter Item Configuration Scenarios', function () {
 
         expect($result)->toBeTrue();
     });
+
+    // Tests setting an item and then immediately saving, without explicit comment calls.
+    it('can set an item and save without explicit comment calls', function () {
+        $this->editorMock->shouldReceive('set')
+            ->with('IMMEDIATE_SAVE_KEY', 'immediate_value', null, null) // Expects null for comments
+            ->once();
+        $this->managerMock->shouldReceive('save')->once()->andReturn(true);
+
+        $result = $this->multiSetter
+            ->setItem('IMMEDIATE_SAVE_KEY', 'immediate_value')
+            ->save(); // finalizeCurrentItem will add this to operations
+
+        expect($result)->toBeTrue();
+    });
+
 });
 
 describe('EnvMultiSetter Guard Clauses', function () {

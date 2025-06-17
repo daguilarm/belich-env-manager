@@ -100,7 +100,6 @@ describe('Variable Setting', function () {
             ->and($foundLine['export'])->toBeTrue();
     });
 
-
     // The editor intelligently adds an empty line for separation
     // if a new variable is added and the previous line wasn't empty or a comment.
     it('adds an empty line before new variable if last line was not empty', function () {
@@ -156,7 +155,6 @@ describe('Variable Setting', function () {
         expect($foundLine['export'])->toBeTrue();
     });
 
-
     // Tests updating only the inline comment of an existing variable.
     it('updates existing variable inline comment', function () {
         $this->editor->setLines([
@@ -165,7 +163,7 @@ describe('Variable Setting', function () {
         $this->editor->set('APP_NAME', 'Name', 'New inline');
         $foundLine = $this->editor->getLines()[0];
         expect($foundLine['comment_inline'])->toBe('New inline');
-        
+
         // Setting an empty string for inline comment should result in null.
         $this->editor->set('APP_NAME', 'Name', '');
         $foundLine = $this->editor->getLines()[0];
@@ -181,7 +179,7 @@ describe('Variable Setting', function () {
         $this->editor->set('APP_NAME', 'Name', null, $newComments);
         $foundLine = $this->editor->getLines()[0];
         expect($foundLine['comment_above'])->toBe($newComments);
-        
+
         // Setting an empty array for comments above should result in an empty array.
         $this->editor->set('APP_NAME', 'Name', null, []);
         $foundLine = $this->editor->getLines()[0];
@@ -253,7 +251,7 @@ describe('Empty Line Handling', function () {
             ['type' => 'empty'],
             ['type' => 'variable', 'key' => 'K3', 'value' => 'V3'],
         ];
-        
+
         $reflection = new ReflectionClass(EnvEditor::class);
         $method = $reflection->getMethod('cleanupEmptyLines');
         $method->setAccessible(true);
