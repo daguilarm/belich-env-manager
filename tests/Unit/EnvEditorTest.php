@@ -89,6 +89,18 @@ describe('Variable Setting', function () {
         expect($foundLine['comment_above'])->toBe($comments);
     });
 
+    it('adds a new variable with export flag', function () {
+        // Tests setting the export flag during variable creation.
+        $this->editor->set('EXPORTED_KEY', 'export_value', null, [], true);
+        $lines = $this->editor->getLines();
+        $foundLine = collect($lines)->firstWhere('key', 'EXPORTED_KEY');
+
+        expect($foundLine)->not->toBeNull()
+            ->and($foundLine['value'])->toBe('export_value')
+            ->and($foundLine['export'])->toBeTrue();
+    });
+
+
     // The editor intelligently adds an empty line for separation
     // if a new variable is added and the previous line wasn't empty or a comment.
     it('adds an empty line before new variable if last line was not empty', function () {
@@ -130,6 +142,20 @@ describe('Variable Setting', function () {
         expect($foundLine['comment_inline'])->toBe('Old inline');
         expect($foundLine['comment_above'])->toBe(['# Old above']);
     });
+
+    it('updates an existing variable to set export flag', function () {
+        $this->editor->setLines([
+            ['type' => 'variable', 'key' => 'APP_NAME', 'value' => 'My App', 'comment_inline' => null, 'comment_above' => [], 'export' => false],
+        ]);
+        // Update APP_NAME to be exported, value and comments should remain if not specified
+        $this->editor->set('APP_NAME', 'My App', null, [], true);
+        $lines = $this->editor->getLines();
+        $foundLine = collect($lines)->firstWhere('key', 'APP_NAME');
+
+        expect($foundLine['value'])->toBe('My App');
+        expect($foundLine['export'])->toBeTrue();
+    });
+
 
     // Tests updating only the inline comment of an existing variable.
     it('updates existing variable inline comment', function () {
