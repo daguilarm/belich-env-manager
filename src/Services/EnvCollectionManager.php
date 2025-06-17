@@ -123,7 +123,7 @@ class EnvCollectionManager
     /**
      * Returns the entire collection.
      */
-    public function asCollection(): Collection
+    public function getEnvContent(): Collection
     {
         return $this->collection;
     }
