@@ -18,38 +18,44 @@ It allows you to read, write, and update environment variables with ease, includ
 
 *   **Read and Parse**: 
     - Accurately reads and parses existing `.env` files directly (in .env format), understanding their structure.
-    - You can also use the package using Laravel Collections to manage the .env files.
+    - It also supports Laravel Collections to manage the .env files, if you prefere.
+    
 *   **Get Variables**: 
     - Retrieve the value of any environment variable.
     - Option to provide a default value if the key is not found.
-*   **Set Variables**: Add new variables or update existing ones.
+
+*   **Set Variables**: 
+    Add new variables or update existing ones.
     - Support for adding/updating inline comments.
     - Support for adding/updating block comments above a variable.
+
 *   **Remove Variables**: 
     - Delete environment variables from the file.
+
 *   **Check Existence**: 
     - Verify if a specific key exists in the `.env` file.
+
 *   **Comment Preservation**: 
     - Intelligently preserves existing inline and block comments when modifying variables.
+
 *   **`export` Prefix Preservation**: 
     - Recognizes and maintains the `export` prefix for variables if present.
+
 *   **Automatic Backups**: 
     - Creates a backup of the `.env` file before any changes are saved.
     - Configurable backup path.
     - Configurable retention policy (number of days to keep backups).
-    *   Automatic pruning of old backups.
+    - **Automatic pruning** of old backups.
+
 *   **Fluent API**: 
     - Chain methods for a more expressive way to manage variables (e.g., `Env::set('KEY', 'value')->save()`).
+
 *   **Facade and Dependency Injection**: 
     - Usable via a convenient `Env` and `EnvCollect` facades or by injecting the `EnvManager` or `EnvCollectManager` class service.
+
 *   **Configuration**: 
     - Publishable configuration file for backup settings.
-*   **PSR-12 Compliant**: 
-    - Code follows PSR-12 coding standards.
-*   **PHP 8.3+**: 
-    - Leverages modern PHP features.
-*   **Laravel 12.0+**: 
-   
+  
 > Please note that this project has been developed with **Laravel 12** and **PHP 8.3** in mind, so it may not work properly with older versions.
 
 ## Installation
@@ -85,11 +91,14 @@ After publishing the configuration file, you can find it at `config/belich-env-m
 
 ## Usage 
 
-You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\EnvManager` class.
+- You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\EnvManager` class.
+- And on the other hand, you can manipulate the .env file from two different approaches:
+    1. You can use the .env file directly.
+    2. You can use the .env file as a Laravel Collection.
 
 Please, remember this is a **beta version**, use it with the utmost caution.
 
-## Using the .env format (you will directly modify the .env file)
+## 1) Using the .env format (you will directly modify the .env file)
 
 You can manipulate the .env file in its own format, using the `.env format`:
 
@@ -178,7 +187,7 @@ class YourService
 }
 ```
 
-## Using Laravel Collection Format
+## 2) Using Laravel Collection Format
 
 ```php 
 $manager = app(EnvCollectionManager::class);
