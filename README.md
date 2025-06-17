@@ -176,25 +176,25 @@ class YourService
 ```php 
 $manager = app(EnvCollectionManager::class);
 
-// Obtener toda la colección
+// Get all the collection
 $envCollection = $manager->asCollection();
 
-// Modificar un valor existente
+// Set an existing value
 $manager->set('APP_DEBUG', 'false')
     ->commentLine('Production mode');
 
-// Añadir nuevo valor
+// Add new value (if the field does not exist)
 $manager->set('NEW_KEY', 'value')
     ->commentsAbove('This is a new setting');
 
-// Eliminar un valor
+// Remove a value by key
 $manager->remove('OLD_KEY');
 
-// Actualizar desde colección externa
+// Update the file from a collection
 $newCollection = collect([...]);
 $manager->updateFileFromCollection($newCollection);
 
-// Guardar cambios
+// Save the changes
 $manager->save();
 
 // Using fluent interface
