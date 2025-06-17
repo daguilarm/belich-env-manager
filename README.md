@@ -198,7 +198,7 @@ $manager->updateFileFromCollection($newCollection);
 $manager->save();
 
 // Using fluent interface
-$manager->setByKey('APP_NAME', 'Laravel')
+$manager->set('APP_NAME', 'Laravel')
     ->comment(false)
     ->commentsAbove('Application Name')
     ->commentLine('Do not change')
