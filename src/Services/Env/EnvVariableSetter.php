@@ -19,11 +19,6 @@ class EnvVariableSetter
 
     /**
      * EnvVariableSetter constructor.
-     *
-     * @param  EnvEditor  $editor  The EnvEditor instance.
-     * @param  EnvManager  $envManager  The EnvManager instance to delegate save operations.
-     * @param  string  $key  The variable key.
-     * @param  string  $value  The variable value.
      */
     public function __construct(EnvEditor $editor, EnvManager $envManager, string $key, string $value)
     {
@@ -39,9 +34,6 @@ class EnvVariableSetter
 
     /**
      * Sets or updates the comment on the same line as the variable (inline comment).
-     *
-     * @param  string|null  $commentText  The inline comment. Pass an empty string to clear, or null to make no change from default.
-     * @return $this
      */
     public function commentLine(?string $commentText): self
     {
@@ -52,9 +44,6 @@ class EnvVariableSetter
 
     /**
      * Sets or updates the block comments above the variable.
-     *
-     * @param  array<string>|null  $commentsArray  The array of comment lines. Pass an empty array to clear, or null to make no change from default.
-     * @return $this
      */
     public function commentsAbove(?array $commentsArray): self
     {
@@ -65,8 +54,6 @@ class EnvVariableSetter
 
     /**
      * Saves all changes made to the .env file via the EnvManager.
-     *
-     * @return bool True on success, false on failure.
      */
     public function save(): bool
     {

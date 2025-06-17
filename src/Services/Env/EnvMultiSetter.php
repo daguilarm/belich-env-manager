@@ -34,10 +34,6 @@ class EnvMultiSetter
     /**
      * Sets the key and value for the current variable being configured in the batch.
      * If a previous variable was being configured, it's finalized and added to the batch.
-     *
-     * @param  string  $key  The variable key.
-     * @param  string  $value  The variable value.
-     * @return $this
      */
     public function setItem(string $key, string $value): self
     {
@@ -53,11 +49,6 @@ class EnvMultiSetter
 
     /**
      * Adds an inline comment to the current variable being configured.
-     *
-     * @param  string|null  $commentText  The inline comment.
-     * @return $this
-     *
-     * @throws LogicException If setItem() was not called before.
      */
     public function commentLine(?string $commentText): self
     {
@@ -71,11 +62,6 @@ class EnvMultiSetter
 
     /**
      * Adds block comments above the current variable being configured.
-     *
-     * @param  array<string>|null  $commentsArray  The array of comment lines.
-     * @return $this
-     *
-     * @throws LogicException If setItem() was not called before.
      */
     public function commentsAbove(?array $commentsArray): self
     {
@@ -87,6 +73,9 @@ class EnvMultiSetter
         return $this;
     }
 
+    /**
+     * Finalizes the current variable being configured and adds it to the batch.
+     */
     private function finalizeCurrentItem(): void
     {
         if ($this->activeKey !== null) {
@@ -99,6 +88,9 @@ class EnvMultiSetter
         }
     }
 
+    /**
+     * Saves all changes made to the .env file via the EnvManager.
+     */
     public function save(): bool
     {
         $this->finalizeCurrentItem(); // Ensure the last item is added

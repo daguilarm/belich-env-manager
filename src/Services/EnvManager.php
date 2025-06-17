@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Daguilar\BelichEnvManager\Services;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Collection;
+use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
+use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
+use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
+use Daguilar\BelichEnvManager\Services\Env\EnvParser;
+use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
+use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Daguilar\BelichEnvManager\Services\Env\{
-    EnvEditor,
-    EnvFormatter,
-    EnvMultiSetter,
-    EnvParser,
-    EnvStorage,
-    EnvVariableSetter
-};
+use Illuminate\Filesystem\Filesystem;
 
+/**
+ * Manages environment variables.
+ */
 class EnvManager
 {
     protected string $envPath;
+
     protected bool $backupsEnabled;
 
     public function __construct(
@@ -44,27 +45,12 @@ class EnvManager
     }
 
     /**
-     * Get environment variables as array.
-     */
-    public function getEnvContentAsArray(): array
-    {
-        return $this->parseEnvVariables()->toArray();
-    }
-    
-    /**
-     * Get environment variables as collection.
-     */
-    public function getEnvContentAsCollection(): Collection
-    {
-        return $this->parseEnvVariables();
-    }
-
-    /**
      * Write content to .env file.
      */
     public function setEnvContent(string $content): bool
     {
         $this->createBackupIfEnabled();
+
         return $this->storage->write($this->envPath, $content);
     }
 
@@ -128,29 +114,8 @@ class EnvManager
     public function remove(string $key): self
     {
         $this->editor->remove($key);
+
         return $this;
-    }
-
-    /**
-     * Parse valid environment variables.
-     */
-    private function parseEnvVariables(): Collection
-    {
-        return collect($this->editor->getLines())
-            ->filter($this->isValidEnvVariable(...))
-            ->mapWithKeys(fn(array $line) => [
-                $line['key'] => $line['value'] ?? null
-            ]);
-    }
-
-    /**
-     * Validate environment variable structure.
-     */
-    private function isValidEnvVariable(array $line): bool
-    {
-        return isset($line['type'], $line['key']) 
-            && $line['type'] === 'variable'
-            && trim($line['key']) !== '';
     }
 
     /**

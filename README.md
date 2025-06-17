@@ -13,7 +13,8 @@ It allows you to read, write, and update environment variables with ease, includ
 ## Features
 
 *   **Read and Parse**: 
-    - Accurately reads and parses existing `.env` files, understanding their structure.
+    - Accurately reads and parses existing `.env` files directly (in .env format), understanding their structure.
+    - You can also use the package using Laravel Collections to manage the .env files.
 *   **Get Variables**: 
     - Retrieve the value of any environment variable.
     - Option to provide a default value if the key is not found.
@@ -81,7 +82,9 @@ You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\Env
 
 Please, remember this is a **beta version**, use it with the utmost caution.
 
-## Using the Facade
+## Using the .env format (you will directly modify the .env file)
+
+You can manipulate the .env file in its own format, using the `.env format`:
 
 ```php 
 
@@ -132,9 +135,9 @@ Env::save();
 $envContent = Env::getEnvContent();
 ```
 
-### Using multipleSet() for Batch Updates.
+### Using multipleSet() for Batch Updates (.env format).
 
-For setting multiple variables at once with their respective comments, you can use the multipleSet() method for a fluent API:
+For setting multiple variables  at once with their respective comments, you can use the multipleSet() method for a fluent API:
 
 ```php 
 use Daguilar\BelichEnvManager\Facades\Env; 
@@ -147,7 +150,7 @@ Env::multipleSet()
     ->save(); 
 ```
 
-## Using Dependency Injection
+### Using Dependency Injection (.env format)
 
 ```php 
 use Daguilar\BelichEnvManager\Services\EnvManager;
@@ -172,6 +175,46 @@ class YourService
         // Do something with $currentAppName
     }
 }
+```
+
+## Using Laravel Collection Format
+
+```php 
+$manager = app(EnvCollectionManager::class);
+
+// Obtener toda la colección
+$envCollection = $manager->asCollection();
+
+// Modificar un valor existente
+$manager->set('APP_DEBUG', 'false')
+    ->commentLine('Production mode');
+
+// Añadir nuevo valor
+$manager->set('NEW_KEY', 'value')
+    ->commentsAbove('This is a new setting');
+
+// Eliminar un valor
+$manager->remove('OLD_KEY');
+
+// Actualizar desde colección externa
+$newCollection = collect([...]);
+$manager->updateFileFromCollection($newCollection);
+
+// Guardar cambios
+$manager->save();
+
+// Using fluent interface
+$manager->setByKey('APP_NAME', 'Laravel')
+    ->comment(false)
+    ->commentsAbove('Application Name')
+    ->commentLine('Do not change')
+    ->save();
+
+// And of course, you can use the Facade (EnvCollect)
+EnvCollect::get('APP_NAME')
+    ->comment(false)
+    ->commentLine('Do not change')
+    ->save();
 ```
 
 ## Backup Management

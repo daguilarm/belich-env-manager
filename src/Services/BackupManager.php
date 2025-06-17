@@ -1,17 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Daguilar\BelichEnvManager\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * Manages environment file backups with retention policy.
+ */
 class BackupManager
 {
     /**
-     * BackupManager constructor.
+     * Creates a new BackupManager instance.
      */
     public function __construct(
         protected readonly Filesystem $files,
@@ -21,10 +27,7 @@ class BackupManager
     ) {}
 
     /**
-     * Create a new BackupManager instance from configuration.
-     *
-     * @param  Filesystem  $files  The filesystem instance.
-     * @param  ConfigRepository  $config  The configuration repository instance.
+     * Creates instance from application configuration.
      */
     public static function fromConfig(Filesystem $files, ConfigRepository $config): self
     {
@@ -35,36 +38,30 @@ class BackupManager
     }
 
     /**
-     * Creates a backup of the specified file.
+     * Creates backup of specified file.
      */
-    public function create(string $filePathToBackup): string|false
+    public function create(string $filePathToBackup): ?string
     {
         if (! $this->files->exists($filePathToBackup)) {
-            return false; // Nothing to back up
+            return null;
         }
 
         $this->ensureBackupDirectoryExists();
 
-        $originalFileName = basename($filePathToBackup);
-        $backupName = sprintf(
-            '%s.backup_%s_%s',
-            $originalFileName,
-            Carbon::now()->format('Ymd_His'),
-            Str::random(8)
-        );
+        $backupName = $this->generateBackupName($filePathToBackup);
         $backupFilePath = $this->backupPath.DIRECTORY_SEPARATOR.$backupName;
 
         if ($this->files->copy($filePathToBackup, $backupFilePath)) {
-            $this->prune($originalFileName);
+            $this->prune(basename($filePathToBackup));
 
             return $backupFilePath;
         }
 
-        return false;
+        return null;
     }
 
     /**
-     * Prunes old backups according to the retention policy.
+     * Deletes backups older than retention period.
      */
     public function prune(string $originalFileName): void
     {
@@ -73,39 +70,51 @@ class BackupManager
         }
 
         $cutoffTime = Carbon::now()->subDays($this->backupRetentionDays)->getTimestamp();
-        $originalFileNamePrefix = $originalFileName.'.backup_';
+        $prefix = $originalFileName.'.backup_';
 
-        collect($this->files->files($this->backupPath))
-            ->filter(fn (SplFileInfo $file) => $this->isEligibleForPruning($file, $originalFileNamePrefix, $cutoffTime))
+        Collection::make($this->files->files($this->backupPath))
+            ->filter(fn (SplFileInfo $file) => $this->isEligibleForPruning($file, $prefix, $cutoffTime))
             ->each(fn (SplFileInfo $file) => $this->files->delete($file->getPathname()));
     }
 
     /**
-     * Ensures the backup directory exists.
+     * Ensures backup directory exists.
      */
     private function ensureBackupDirectoryExists(): void
     {
         if (! $this->files->isDirectory($this->backupPath)) {
-            $this->files->makeDirectory($this->backupPath, 0755, true, true);
+            $this->files->makeDirectory($this->backupPath, 0755, true);
         }
     }
 
     /**
-     * Determines if the pruning process should be skipped.
+     * Determines if pruning should be skipped.
      */
     private function shouldSkipPruning(): bool
     {
-        return ! $this->files->isDirectory($this->backupPath) ||
-               empty($this->backupRetentionDays) || // Covers null, 0, empty string
-               $this->backupRetentionDays <= 0;
+        return ! $this->files->isDirectory($this->backupPath)
+            || ! $this->backupRetentionDays
+            || $this->backupRetentionDays <= 0;
     }
 
     /**
-     * Checks if a file is eligible for pruning based on its name and modification time.
+     * Checks if file meets pruning criteria.
      */
-    private function isEligibleForPruning(SplFileInfo $file, string $originalFileNamePrefix, int $cutoffTime): bool
+    private function isEligibleForPruning(SplFileInfo $file, string $prefix, int $cutoffTime): bool
     {
-        return Str::startsWith($file->getFilename(), $originalFileNamePrefix) &&
-               $file->getMTime() < $cutoffTime;
+        return str_starts_with($file->getFilename(), $prefix)
+            && $file->getMTime() < $cutoffTime;
+    }
+
+    /**
+     * Generates unique backup filename.
+     */
+    private function generateBackupName(string $filePath): string
+    {
+        $baseName = basename($filePath);
+        $timestamp = Carbon::now()->format('Ymd_His');
+        $random = Str::random(8);
+
+        return "{$baseName}.backup_{$timestamp}_{$random}";
     }
 }

@@ -51,7 +51,7 @@ test('set adds a new variable', function () {
 
     expect($foundLine)->not->toBeNull()
         ->and($foundLine['value'])->toBe('new_value')
-        ->and($foundLine['comment_inline'])->toBeNull()
+        ->and($foundLine['comment_inline'] ?? null)->toBeNull()
         ->and($foundLine['comment_above'])->toBe([]);
 });
 

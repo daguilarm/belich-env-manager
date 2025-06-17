@@ -3,81 +3,73 @@
 namespace Daguilar\BelichEnvManager\Services\Env;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class EnvFormatter
 {
     /**
-     * Builds the .env content string from a structured array of lines.
+     * Formats the structured array of lines back into a .env file content string.
      */
     public function format(array $lines): string
     {
-        $content = '';
-        collect($lines)->each(function ($line) use (&$content) {
-            match ($line['type']) {
-                'empty' => $content .= PHP_EOL,
-                'comment' => $content .= $line['content'].PHP_EOL,
-                'variable' => $content .= $this->formatVariableLine($line),
-                default => null, // Or throw an exception for unknown type
-            };
-        });
-
-        return $content ? rtrim($content, PHP_EOL).PHP_EOL : '';
+        return Collection::make($lines)
+            ->map(fn (array $line) => match ($line['type']) {
+                'empty' => PHP_EOL,
+                'comment' => $line['content'] . PHP_EOL,
+                'variable' => $this->formatVariableLine($line),
+                default => '',
+            })
+            ->filter()
+            ->pipe(fn ($coll) => $coll->isEmpty() ? '' : $coll->implode(''));
     }
 
     /**
-     * Formats a single variable line, including its comments and value.
-     *
-     * @param  array  $line  The structured line data for a variable.
-     * @return string The formatted variable line string.
+     * Formats a single variable line, including comments above and inline.
      */
     private function formatVariableLine(array $line): string
     {
-        $output = $this->formatCommentsAbove($line['comment_above'] ?? []);
-
-        $formattedValue = $this->quoteValueIfNeeded((string) $line['value']);
-        $variableString = $this->buildCoreVariableString(
-            $line['key'],
-            $formattedValue,
-            $line['export'] ?? false
-        );
-
-        if (! empty($line['comment_inline'])) {
-            $variableString .= ' # '.$line['comment_inline'];
-        }
-
-        $output .= $variableString.PHP_EOL;
-
-        return $output;
+        $output = $this->formatBlockComments($line['comment_above'] ?? []);
+        $output .= $this->buildVariableString($line);
+        
+        return $output . PHP_EOL;
     }
 
     /**
-     * Formats the block comments that appear above a variable.
+     * Formats block comments (comments above the variable).
      */
-    private function formatCommentsAbove(array $commentsAbove): string
+    private function formatBlockComments(array $comments): string
     {
-        if (empty($commentsAbove)) {
-            return '';
-        }
-
-        return collect($commentsAbove)
-            ->map(fn (string $comment) => $comment.PHP_EOL)
+        return Collection::make($comments)
+            ->map(fn (string $comment) => $comment . PHP_EOL)
             ->implode('');
     }
 
     /**
-     * Quotes a value if it contains special characters or is an empty/boolean/null string.
+     * Builds a string representation of a variable line.
+     */
+    private function buildVariableString(array $line): string
+    {
+        $value = $this->quoteValueIfNeeded($line['value']);
+        $variable = ($line['export'] ?? false ? 'export ' : '') . $line['key'] . '=' . $value;
+        
+        return isset($line['comment_inline']) 
+            ? $variable . ' # ' . $line['comment_inline'] 
+            : $variable;
+    }
+
+    /**
+     * Quotes a value string if it contains spaces, special characters, is empty,
+     * or is a boolean/null keyword. Double quotes are used, and existing double
+     * quotes within the value are escaped.     
      */
     private function quoteValueIfNeeded(string $value): string
     {
-        $needsQuotes = Str::contains($value, [' ', '#', '=', '"', "'"]) ||
-                       $value === '' ||
-                       in_array(strtolower($value), ['true', 'false', 'null'], true);
-
-        return $needsQuotes ? '"'.str_replace('"', '\\"', $value).'"' : $value;
-    }
-
-    private function buildCoreVariableString(string $key, string $formattedValue, bool $isExported): string
-    {
-        return ($isExported ? 'export ' : '').$key.'='.$formattedValue;
+        $needsQuoting = Str::contains($value, [' ', '#', '=', '"', "'"]) 
+            || $value === ''
+            || in_array(strtolower($value), ['true', 'false', 'null'], true);
+        
+        return $needsQuoting 
+            ? '"' . str_replace('"', '\\"', $value) . '"' 
+            : $value;
     }
 }

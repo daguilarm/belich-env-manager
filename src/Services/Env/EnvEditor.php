@@ -2,6 +2,8 @@
 
 namespace Daguilar\BelichEnvManager\Services\Env;
 
+use Illuminate\Support\Collection;
+
 /**
  * Manages the in-memory representation of .env file lines.
  * It allows getting, setting, and removing environment variables,
@@ -20,8 +22,6 @@ class EnvEditor
 
     /**
      * Gets all parsed lines.
-     *
-     * @return array<int, array<string, mixed>>
      */
     public function getLines(): array
     {
@@ -30,8 +30,6 @@ class EnvEditor
 
     /**
      * Sets all parsed lines, replacing any existing ones.
-     *
-     * @param  array<int, array<string, mixed>>  $lines
      */
     public function setLines(array $lines): void
     {
@@ -49,8 +47,6 @@ class EnvEditor
 
     /**
      * Gets the value of a variable key.
-     *
-     * @param  string|null  $default
      */
     public function get(string $key, $default = null): ?string
     {
@@ -63,18 +59,14 @@ class EnvEditor
     /**
      * Sets or updates a variable key with a new value and optional comments.
      * If the key exists, it's updated. Otherwise, a new line is appended.
-     *
-     * @param  array<string>|null  $commentsAbove
      */
     public function set(string $key, string $value, ?string $inlineComment = null, ?array $commentsAbove = null): void
     {
         $index = $this->findLineIndexByKey($key);
 
-        if ($index !== null) {
-            $this->updateLineAtIndex($index, $value, $inlineComment, $commentsAbove);
-        } else {
-            $this->appendNewLine($key, $value, $inlineComment, $commentsAbove);
-        }
+        $index !== null 
+            ? $this->updateExistingLine($index, $value, $inlineComment, $commentsAbove)
+            : $this->appendNewLine($key, $value, $inlineComment, $commentsAbove);
     }
 
     /**
@@ -84,14 +76,10 @@ class EnvEditor
     public function remove(string $key): void
     {
         $initialCount = count($this->lines);
-        $this->lines = collect($this->lines)
+        
+        $this->lines = Collection::make($this->lines)
             ->reject(fn ($line) => $line['type'] === 'variable' && $line['key'] === $key)
-            ->values()
-            ->all();
-
-        if (count($this->lines) < $initialCount) {
-            $this->lines = $this->cleanupEmptyLines($this->lines);
-        }
+            ->pipe(fn ($coll) => $this->cleanupEmptyLines($coll->all()));
     }
 
     /**
@@ -107,72 +95,61 @@ class EnvEditor
 
     /**
      * Updates an existing line at a specific index.
-     *
-     * @param  array<string>|null  $commentsAbove
      */
-    private function updateLineAtIndex(int $index, string $value, ?string $inlineComment, ?array $commentsAbove): void
+    private function updateExistingLine(int $index, string $value, ?string $inlineComment, ?array $commentsAbove): void
     {
         $this->lines[$index]['value'] = $value;
-
+        
         if ($inlineComment !== null) {
-            $this->lines[$index]['comment_inline'] = $inlineComment === '' ? null : $inlineComment;
+            $this->lines[$index]['comment_inline'] = $inlineComment ?: null;
         }
-
+        
         if ($commentsAbove !== null) {
             $this->lines[$index]['comment_above'] = $commentsAbove;
         }
-
-        // Ensure 'comment_above' key exists if it was not there and not explicitly set
-        if (! array_key_exists('comment_above', $this->lines[$index])) {
+        
+        if (!isset($this->lines[$index]['comment_above'])) {
             $this->lines[$index]['comment_above'] = [];
         }
     }
 
     /**
      * Appends a new variable line to the lines array.
-     *
-     * @param  array<string>|null  $commentsAbove
      */
     private function appendNewLine(string $key, string $value, ?string $inlineComment, ?array $commentsAbove): void
     {
-        // Add an empty line before if the last line isn't empty and no comments_above are provided.
-        if (! empty($this->lines) && end($this->lines)['type'] !== 'empty' && empty($commentsAbove)) {
-            $this->lines[] = ['type' => 'empty'];
+        if (!empty($this->lines)) {
+            $lastLine = end($this->lines);
+            if ($lastLine['type'] !== 'empty' && empty($commentsAbove)) {
+                $this->lines[] = ['type' => 'empty'];
+            }
         }
 
-        $this->lines[] = [
+        $this->lines[] = array_filter([
             'type' => 'variable',
             'key' => $key,
             'value' => $value,
-            'comment_inline' => ($inlineComment === '') ? null : $inlineComment,
+            'comment_inline' => $inlineComment,
             'comment_above' => $commentsAbove ?? [],
-            'export' => false, // Default: do not export new variables
-        ];
+            'export' => false,
+        ], fn ($v) => $v !== null);
     }
 
     /**
      * Collapses multiple consecutive empty lines into a single one.
-     *
-     * @param  array<int, array<string, mixed>>  $lines
-     * @return array<int, array<string, mixed>>
      */
     private function cleanupEmptyLines(array $lines): array
     {
-        if (empty($lines)) {
-            return [];
-        }
-
-        return collect($lines)
-            ->reduce(function ($carry, $currentItem) {
-                $isCurrentEmpty = $currentItem['type'] === 'empty';
-                $lastItemWasEmpty = ! empty($carry) && end($carry)['type'] === 'empty';
-
-                // Add the current item unless it's an empty line and the previous line was also empty.
-                if (! ($isCurrentEmpty && $lastItemWasEmpty)) {
-                    $carry[] = $currentItem;
+        return Collection::make($lines)
+            ->reduce(function (array $result, array $line) {
+                $last = end($result);
+                $isDuplicateEmpty = $line['type'] === 'empty' && $last && $last['type'] === 'empty';
+                
+                if (!$isDuplicateEmpty) {
+                    $result[] = $line;
                 }
-
-                return $carry;
+                
+                return $result;
             }, []);
     }
 }
