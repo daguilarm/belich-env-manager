@@ -181,7 +181,7 @@ class YourService
 $manager = app(EnvCollectionManager::class);
 
 // Get all the collection
-$envCollection = $manager->asCollection();
+$envCollection = $manager->getEnvContent();
 
 // Set an existing value
 $manager->set('APP_DEBUG', 'false')
