@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Daguilar\BelichEnvManager\Services\Env;
 
 use Illuminate\Support\Str;
@@ -7,165 +9,171 @@ use Illuminate\Support\Str;
 class EnvParser
 {
     /**
-     * Parses the .env content string into a structured array.
+     * Parses .env content into a structured array.
      */
     public function parse(string $content): array
     {
-        // Handle empty input string
         if ($content === '') {
             return [];
         }
 
-        // Handle input string consisting of only a single newline character
-        if (preg_match('/^(\r\n|\n|\r)$/D', $content)) {
+        // Handle single newline case specifically
+        if (preg_match('/^\R$/D', $content)) {
             return [['type' => 'empty']];
         }
 
-        $lines = [];
-        $pendingCommentsAbove = [];
-        $rawLinesArray = preg_split("/(\r\n|\n|\r)/", $content);
+        $rawLines = preg_split('/\R/', $content) ?: [];
+        $initialState = ['lines' => [], 'pendingComments' => []];
 
-        foreach ($rawLinesArray as $rawLine) {
-            $trimmedLine = trim($rawLine);
+        $state = collect($rawLines)
+            ->reduce(function (array $state, string $rawLine): array {
+                $trimmedLine = trim($rawLine);
 
-            if ($this->isEmptyLine($trimmedLine, $rawLine, $lines, $pendingCommentsAbove)) {
-                continue;
-            }
+                return match (true) {
+                    $this->isEmptyLine($trimmedLine) => $this->handleEmptyLine($state),
+                    $this->isCommentLine($trimmedLine) => $this->handleCommentLine($state, $rawLine),
+                    $this->isVariableLine($trimmedLine) => $this->handleVariableLine($state, $trimmedLine, $rawLine),
+                    default => $this->handleUnknownLine($state, $rawLine)
+                };
+            }, $initialState);
 
-            if ($this->isCommentLine($trimmedLine, $rawLine, $pendingCommentsAbove)) {
-                continue;
-            }
-
-            if ($this->isVariableLine($trimmedLine, $rawLine, $lines, $pendingCommentsAbove)) {
-                continue;
-            }
-
-            $this->handleFallbackLine($rawLine, $lines, $pendingCommentsAbove);
-        }
-
-        // Add any trailing comments
-        if (! empty($pendingCommentsAbove)) {
-            $trailingCommentLines = collect($pendingCommentsAbove)
-                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
-                ->all();
-            array_push($lines, ...$trailingCommentLines);
-        }
-
-        return $lines;
+        return $this->finalizeState($state);
     }
 
-    /**
-     * Checks if a line is empty and handles preceding comments if any.
-     * Modifies $lines and $pendingCommentsAbove by reference.
-     */
-    private function isEmptyLine(string $trimmedLine, string $rawLine, array &$lines, array &$pendingCommentsAbove): bool
+    private function isEmptyLine(string $line): bool
     {
-        if (! empty($trimmedLine)) {
-            return false;
-        }
-
-        if (! empty($pendingCommentsAbove)) {
-            $commentLines = collect($pendingCommentsAbove)
-                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
-                ->all();
-            array_push($lines, ...$commentLines);
-        }
-        $lines[] = ['type' => 'empty'];
-        $pendingCommentsAbove = []; // Reset after handling the empty line and its preceding comments
-
-        return true;
+        return $line === '';
     }
 
-    /**
-     * Checks if a line is a comment and adds it to pending comments.
-     * Modifies $pendingCommentsAbove by reference.
-     */
-    private function isCommentLine(string $trimmedLine, string $rawLine, array &$pendingCommentsAbove): bool
+    private function isCommentLine(string $line): bool
     {
-        if (! Str::startsWith($trimmedLine, '#')) {
-            return false;
-        }
-        $pendingCommentsAbove[] = $rawLine; // Use rawLine to preserve original comment formatting
-
-        return true;
+        return Str::startsWith($line, '#');
     }
 
-    /**
-     * Checks if a line is a variable assignment and parses it.
-     * Modifies $lines and $pendingCommentsAbove by reference.
-     */
-    private function isVariableLine(string $trimmedLine, string $rawLine, array &$lines, array &$pendingCommentsAbove): bool
+    private function isVariableLine(string $line): bool
     {
-        if (! preg_match('/^(export\s+)?(?<key>[A-Za-z_0-9]+)\s*=\s*(?<value>.*)?$/', $trimmedLine, $matches)) {
-            return false;
+        return (bool) preg_match(
+            '/^\s*(export\s+)?[A-Za-z_][A-Za-z0-9_]*\s*=.*$/',
+            $line
+        );
+    }
+
+    private function parseVariable(string $trimmedLine): ?array
+    {
+        $pattern = '/^\s*(export\s+)?(?<key>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*'
+            .'(?:(?<q>["\'])(?<value_quoted>(?:\\\\.|(?!\k<q>).)*)\k<q>'
+            .'|(?<value_unquoted>[^#]*?))(?:\s*#\s*(?<comment>.*))?\s*$/';
+
+        if (! preg_match($pattern, $trimmedLine, $matches)) {
+            return null;
         }
 
-        $key = $matches['key'];
-        $valueString = $matches['value'] ?? ''; // Raw value string from regex
+        $value = $this->extractValue($matches);
+        $inlineComment = isset($matches['comment']) ? trim($matches['comment']) : null;
 
-        $inlineComment = $this->extractInlineCommentFromValueString($valueString); // $valueString is modified by reference
-        $finalValue = $this->unquoteValueString($valueString);
-
-        $lines[] = [
-            'type' => 'variable',
-            'key' => $key,
-            'value' => $finalValue,
+        return [
+            'key' => $matches['key'],
+            'value' => $value,
+            'export' => ! empty(trim($matches[1] ?? '')),
             'comment_inline' => $inlineComment,
-            'comment_above' => $pendingCommentsAbove, // Assigns the current pending comments to this variable
-            'export' => Str::startsWith($trimmedLine, 'export'),
         ];
-        $pendingCommentsAbove = []; // Reset after associating with a variable
-
-        return true;
     }
 
-    /**
-     * Extracts an inline comment from a value string and cleans the value string.
-     * The value string is passed by reference and will be modified.
-     */
-    private function extractInlineCommentFromValueString(string &$valueString): ?string
+    private function extractValue(array $matches): string
     {
-        $comment = null;
-
-        if (Str::contains($valueString, '#')) {
-            $parts = Str::of($valueString)->explode('#', 2);
-            $valueString = trim($parts[0]); // Modify the original string by removing the comment part
-            $comment = trim($parts[1]);
+        if (isset($matches['value_quoted']) && $matches['value_quoted'] !== '') {
+            return str_replace(['\\\\', '\\"', "\\'"], ['\\', '"', "'"], $matches['value_quoted']);
         }
 
-        return $comment;
+        return array_key_exists('value_unquoted', $matches)
+            ? trim($matches['value_unquoted'])
+            : '';
     }
 
-    /**
-     * Removes surrounding quotes from a value string if present.
-     */
-    private function unquoteValueString(string $valueString): string
+    private function handleEmptyLine(array $state): array
     {
-        // Check if the value is quoted with double or single quotes
-        if (preg_match('/^"(.*)"$/s', $valueString, $double_q_matches)) {
-            // Return content within double quotes
-            return $double_q_matches[1];
-        } elseif (preg_match("/^'(.*)'$/s", $valueString, $single_q_matches)) {
-            // Return content within single quotes
-            return $single_q_matches[1];
+        $newLines = $state['lines'];
+        $pending = $state['pendingComments'];
+
+        // Flush pending comments as standalone comments
+        if (! empty($pending)) {
+            $commentLines = array_map(
+                fn ($comment) => ['type' => 'comment', 'content' => $comment],
+                $pending
+            );
+            $newLines = [...$newLines, ...$commentLines];
+            $pending = [];
         }
 
-        return $valueString; // Return as is if not quoted
+        $newLines[] = ['type' => 'empty'];
+
+        return ['lines' => $newLines, 'pendingComments' => $pending];
     }
 
-    /**
-     * Handles lines that do not match other types (empty, comment, variable).
-     * Treats them as comments to preserve their content.
-     */
-    private function handleFallbackLine(string $rawLine, array &$lines, array &$pendingCommentsAbove): void
+    private function handleCommentLine(array $state, string $rawLine): array
     {
-        if (! empty($pendingCommentsAbove)) {
-            $commentLines = collect($pendingCommentsAbove)
-                ->map(fn ($commentContent) => ['type' => 'comment', 'content' => $commentContent])
-                ->all();
-            array_push($lines, ...$commentLines);
+        $state['pendingComments'][] = $rawLine;
+
+        return $state;
+    }
+
+    private function handleVariableLine(array $state, string $trimmedLine, string $rawLine): array
+    {
+        $variable = $this->parseVariable($trimmedLine);
+
+        if ($variable === null) {
+            return $this->handleUnknownLine($state, $rawLine);
         }
-        $lines[] = ['type' => 'comment', 'content' => $rawLine]; // Treat as comment to preserve
-        $pendingCommentsAbove = [];
+
+        $newLines = $state['lines'];
+        $pending = $state['pendingComments'];
+
+        $newLines[] = [
+            'type' => 'variable',
+            'key' => $variable['key'],
+            'value' => $variable['value'],
+            'comment_inline' => $variable['comment_inline'],
+            'comment_above' => $pending,
+            'export' => $variable['export'],
+        ];
+
+        return ['lines' => $newLines, 'pendingComments' => []];
+    }
+
+    private function handleUnknownLine(array $state, string $rawLine): array
+    {
+        $newLines = $state['lines'];
+        $pending = $state['pendingComments'];
+
+        // Flush pending comments first
+        if (! empty($pending)) {
+            $commentLines = array_map(
+                fn ($comment) => ['type' => 'comment', 'content' => $comment],
+                $pending
+            );
+            $newLines = [...$newLines, ...$commentLines];
+            $pending = [];
+        }
+
+        $newLines[] = ['type' => 'comment', 'content' => $rawLine];
+
+        return ['lines' => $newLines, 'pendingComments' => $pending];
+    }
+
+    private function finalizeState(array $state): array
+    {
+        $newLines = $state['lines'];
+        $pending = $state['pendingComments'];
+
+        // Add any remaining comments as standalone
+        if (! empty($pending)) {
+            $commentLines = array_map(
+                fn ($comment) => ['type' => 'comment', 'content' => $comment],
+                $pending
+            );
+            $newLines = [...$newLines, ...$commentLines];
+        }
+
+        return $newLines;
     }
 }
