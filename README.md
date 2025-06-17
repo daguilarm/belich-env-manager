@@ -11,10 +11,10 @@ It allows you to read, write, and update environment variables with ease, includ
 > [!WARNING] 
 > **Warning:** This package is currently in a **beta stage**. The `main` branch contains the latest beta version. While it aims to be stable, please use it with caution in production environments and ensure you have backups. We appreciate any feedback or bug reports during this phase.
 
-[!CAUTION]  
+> [!CAUTION]  
 > And please note, this package is part of a professional project that needed this feature, and I decided to release it as a Laravel package (in case anyone could benefit from it or find it useful). I've tried to run every possible test to ensure it works. But beyond my own use, I haven't tested it. Despite everything, I'm convinced that all the features work correctly and have their respective tests. 
 
-[!IMPORTANT]  
+> [!IMPORTANT]  
 > If you find a bug, a feature that doesn't work correctly, or have a suggestion, don't hesitate to contact me. I'll try to fix or implement it as soon as I have time. Thanks!
 
 ## Features
@@ -59,7 +59,7 @@ It allows you to read, write, and update environment variables with ease, includ
 *   **Configuration**: 
     - Publishable configuration file for backup settings.
  
-[!IMPORTANT]
+> [!IMPORTANT]
 > Please note that this project has been developed with **Laravel 12** and **PHP 8.3** in mind, so it may not work properly with older versions.
 
 ## Installation
