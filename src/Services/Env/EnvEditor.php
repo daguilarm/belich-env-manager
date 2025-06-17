@@ -64,7 +64,7 @@ class EnvEditor
     {
         $index = $this->findLineIndexByKey($key);
 
-        $index !== null 
+        $index !== null
             ? $this->updateExistingLine($index, $value, $inlineComment, $commentsAbove, $export)
             : $this->appendNewLine($key, $value, $inlineComment, $commentsAbove, $export);
     }
@@ -76,7 +76,7 @@ class EnvEditor
     public function remove(string $key): void
     {
         $initialCount = count($this->lines);
-        
+
         $this->lines = Collection::make($this->lines)
             ->reject(fn ($line) => $line['type'] === 'variable' && $line['key'] === $key)
             ->pipe(fn ($coll) => $this->cleanupEmptyLines($coll->all()));
@@ -100,16 +100,16 @@ class EnvEditor
     {
         $this->lines[$index]['value'] = $value;
         $this->lines[$index]['export'] = $export;
-        
+
         if ($inlineComment !== null) {
             $this->lines[$index]['comment_inline'] = $inlineComment ?: null;
         }
-        
+
         if ($commentsAbove !== null) {
             $this->lines[$index]['comment_above'] = $commentsAbove;
         }
-        
-        if (!isset($this->lines[$index]['comment_above'])) {
+
+        if (! isset($this->lines[$index]['comment_above'])) {
             $this->lines[$index]['comment_above'] = [];
         }
     }
@@ -119,7 +119,7 @@ class EnvEditor
      */
     private function appendNewLine(string $key, string $value, ?string $inlineComment, ?array $commentsAbove, bool $export): void
     {
-        if (!empty($this->lines)) {
+        if (! empty($this->lines)) {
             $lastLine = end($this->lines);
             if ($lastLine['type'] !== 'empty' && empty($commentsAbove)) {
                 $this->lines[] = ['type' => 'empty'];
@@ -145,11 +145,11 @@ class EnvEditor
             ->reduce(function (array $result, array $line) {
                 $last = end($result);
                 $isDuplicateEmpty = $line['type'] === 'empty' && $last && $last['type'] === 'empty';
-                
-                if (!$isDuplicateEmpty) {
+
+                if (! $isDuplicateEmpty) {
                     $result[] = $line;
                 }
-                
+
                 return $result;
             }, []);
     }

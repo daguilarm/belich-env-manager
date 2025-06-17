@@ -2,8 +2,8 @@
 
 namespace Daguilar\BelichEnvManager\Services\Env;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class EnvFormatter
 {
@@ -15,7 +15,7 @@ class EnvFormatter
         return Collection::make($lines)
             ->map(fn (array $line) => match ($line['type']) {
                 'empty' => PHP_EOL,
-                'comment' => $line['content'] . PHP_EOL,
+                'comment' => $line['content'].PHP_EOL,
                 'variable' => $this->formatVariableLine($line),
                 default => '',
             })
@@ -30,8 +30,8 @@ class EnvFormatter
     {
         $output = $this->formatBlockComments($line['comment_above'] ?? []);
         $output .= $this->buildVariableString($line);
-        
-        return $output . PHP_EOL;
+
+        return $output.PHP_EOL;
     }
 
     /**
@@ -40,7 +40,7 @@ class EnvFormatter
     private function formatBlockComments(array $comments): string
     {
         return Collection::make($comments)
-            ->map(fn (string $comment) => $comment . PHP_EOL)
+            ->map(fn (string $comment) => $comment.PHP_EOL)
             ->implode('');
     }
 
@@ -50,26 +50,26 @@ class EnvFormatter
     private function buildVariableString(array $line): string
     {
         $value = $this->quoteValueIfNeeded($line['value']);
-        $variable = ($line['export'] ?? false ? 'export ' : '') . $line['key'] . '=' . $value;
-        
-        return isset($line['comment_inline']) 
-            ? $variable . ' # ' . $line['comment_inline'] 
+        $variable = ($line['export'] ?? false ? 'export ' : '').$line['key'].'='.$value;
+
+        return isset($line['comment_inline'])
+            ? $variable.' # '.$line['comment_inline']
             : $variable;
     }
 
     /**
      * Quotes a value string if it contains spaces, special characters, is empty,
      * or is a boolean/null keyword. Double quotes are used, and existing double
-     * quotes within the value are escaped.     
+     * quotes within the value are escaped.
      */
     private function quoteValueIfNeeded(string $value): string
     {
-        $needsQuoting = Str::contains($value, [' ', '#', '=', '"', "'"]) 
+        $needsQuoting = Str::contains($value, [' ', '#', '=', '"', "'"])
             || $value === ''
             || in_array(strtolower($value), ['true', 'false', 'null'], true);
-        
-        return $needsQuoting 
-            ? '"' . str_replace('"', '\\"', $value) . '"' 
+
+        return $needsQuoting
+            ? '"'.str_replace('"', '\\"', $value).'"'
             : $value;
     }
 }
