@@ -102,7 +102,7 @@ After publishing the configuration file, you can find it at `config/belich-env-m
 
 Please, remember this is a **beta version**, use it with the utmost caution.
 
-## 1) Using the .env format (you will directly modify the .env file)
+#### 1) Using the .env format (you will directly modify the .env file)
 
 You can manipulate the .env file in its own format, using the `.env format`:
 
@@ -191,7 +191,7 @@ class YourService
 }
 ```
 
-## 2) Using Laravel Collection Format
+#### 2) Using Laravel Collection Format
 
 ```php 
 $manager = app(EnvCollectionManager::class);
