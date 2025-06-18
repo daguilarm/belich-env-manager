@@ -1,8 +1,8 @@
 # Laravel .env Manager
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/daguilar/belich-env-manager.svg?style=flat-square)](https://packagist.org/packages/daguilar/belich-env-manager)
-[![Total Downloads](https://img.shields.io/packagist/dt/daguilar/belich-env-manager.svg?style=flat-square)](https://packagist.org/packages/daguilar/belich-env-manager)
-[![License](https://img.shields.io/packagist/l/daguilar/belich-env-manager.svg?style=flat-square)](LICENSE)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/daguilar/env-manager.svg?style=flat-square)](https://packagist.org/packages/daguilar/env-manager)
+[![Total Downloads](https://img.shields.io/packagist/dt/daguilar/env-manager.svg?style=flat-square)](https://packagist.org/packages/daguilar/env-manager)
+[![License](https://img.shields.io/packagist/l/daguilar/env-manager.svg?style=flat-square)](LICENSE)
 
 A simple and versatil package to programmatically manage your Laravel `.env` files. 
 
@@ -67,35 +67,35 @@ It allows you to read, write, and update environment variables with ease, includ
 You can install the package via composer:
 
 ```bash
-composer require daguilar/belich-env-manager:dev-master
+composer require daguilar/env-manager:dev-master
 ```
 
 Or in your composer file:
 
 ```bash
-"daguilar/belich-env-manager": "dev-master"
+"daguilar/env-manager": "dev-master"
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
 
 ```bash 
-php artisan vendor:publish --provider="Daguilar\BelichEnvManager\BelichEnvManagerServiceProvider" --tag="belich-env-manager-config"
+php artisan vendor:publish --provider="Daguilar\EnvManager\EnvManagerServiceProvider" --tag="env-manager-config"
 ```
 
-This will create a `config/belich-env-manager.php` file in your project where you can customize the backup settings.
+This will create a `config/env-manager.php` file in your project where you can customize the backup settings.
 
 ## Configuration
 
-After publishing the configuration file, you can find it at `config/belich-env-manager.php`. Available options:
+After publishing the configuration file, you can find it at `config/env-manager.php`. Available options:
 
 - `backup.enabled`: (bool) Enable or disable automatic backups. Defaults to true.
-- `backup.path`: (string) The directory path where backups will be stored. Defaults to `storage_path('app/belich/env_backups')`.
+- `backup.path`: (string) The directory path where backups will be stored. Defaults to `storage_path('app/env-manager/env_backups')`.
 - `backup.retention_days`: (int) The number of days to retain backups. Backups older than this will be pruned. Set to 0 or null to retain forever. 
     - Defaults to 7.
 
 ## Usage 
 
-- You can use the Env facade or inject the `Daguilar\BelichEnvManager\Services\EnvManager` class.
+- You can use the Env facade or inject the `Daguilar\EnvManager\Services\EnvManager` class.
 - And on the other hand, you can manipulate the .env file from two different approaches:
     1. You can use the .env file directly.
     2. You can use the .env file as a Laravel Collection.
@@ -108,7 +108,7 @@ You can manipulate the .env file in its own format, using the `.env format`:
 
 ```php 
 
-use Daguilar\BelichEnvManager\Facades\Env;
+use Daguilar\EnvManager\Facades\Env;
 
 // Get all the data as .env 
 $allTheDataAsEnv = Env::getEnvContent();
@@ -154,7 +154,7 @@ $envContent = Env::getEnvContent();
 For setting multiple variables  at once with their respective comments, you can use the multipleSet() method for a fluent API:
 
 ```php 
-use Daguilar\BelichEnvManager\Facades\Env; 
+use Daguilar\EnvManager\Facades\Env; 
 
 Env::multipleSet()
     ->setItem('BATCH_KEY_1', 'value1')
@@ -167,7 +167,7 @@ Env::multipleSet()
 ### Using Dependency Injection (.env format)
 
 ```php 
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Services\EnvManager;
 
 class YourService
 {
