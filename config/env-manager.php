@@ -22,7 +22,7 @@ return [
     */
     'backup' => [
         'enabled' => true,
-        'path' => storage_path('app/belich/env_backups'),
+        'path' => storage_path('app/env-manager/env_backups'),
         'retention_days' => 7, // Backups older than this will be pruned
     ],
 ];

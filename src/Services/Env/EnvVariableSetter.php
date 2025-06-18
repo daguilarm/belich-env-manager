@@ -1,8 +1,8 @@
 <?php
 
-namespace Daguilar\BelichEnvManager\Services\Env;
+namespace Daguilar\EnvManager\Services\Env;
 
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Services\EnvManager;
 
 /**
  * Provides a fluent interface for setting a variable's value and its comments.

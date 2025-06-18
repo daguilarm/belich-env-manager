@@ -1,6 +1,6 @@
 <?php
 
-namespace Daguilar\BelichEnvManager\Services\Env;
+namespace Daguilar\EnvManager\Services\Env;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

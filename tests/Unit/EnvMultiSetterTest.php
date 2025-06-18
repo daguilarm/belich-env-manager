@@ -4,9 +4,9 @@
 // This class provides a fluent interface for setting multiple environment variables,
 // along with their respective comments, in a batch. Changes are applied
 // to the EnvEditor upon calling save(), which then delegates to EnvManager.
-use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
-use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Services\Env\EnvEditor;
+use Daguilar\EnvManager\Services\Env\EnvMultiSetter;
+use Daguilar\EnvManager\Services\EnvManager;
 
 beforeEach(function () {
     $this->editorMock = Mockery::mock(EnvEditor::class);

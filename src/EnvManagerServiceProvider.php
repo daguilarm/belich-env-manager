@@ -1,24 +1,24 @@
 <?php
 
-namespace Daguilar\BelichEnvManager;
+namespace Daguilar\EnvManager;
 
-use Daguilar\BelichEnvManager\Services\BackupManager;
-use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
-use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\EnvCollectionManager;
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Services\BackupManager;
+use Daguilar\EnvManager\Services\Env\EnvEditor;
+use Daguilar\EnvManager\Services\Env\EnvFormatter;
+use Daguilar\EnvManager\Services\Env\EnvParser;
+use Daguilar\EnvManager\Services\Env\EnvStorage;
+use Daguilar\EnvManager\Services\EnvCollectionManager;
+use Daguilar\EnvManager\Services\EnvManager;
 use Illuminate\Support\ServiceProvider; // Asegúrate de la ruta correcta
 
-class BelichEnvManagerServiceProvider extends ServiceProvider
+class EnvManagerServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/belich-env-manager.php', 'belich-env-manager');
+        $this->mergeConfigFrom(__DIR__.'/../config/env-manager.php', 'env-manager');
 
         $this->app->singleton(BackupManager::class, function ($app) {
             return BackupManager::fromConfig($app['files'], $app['config']);
@@ -49,8 +49,8 @@ class BelichEnvManagerServiceProvider extends ServiceProvider
         });
 
         // Register alias for the Facade
-        $this->app->alias(EnvManager::class, 'belich.env-manager');
-        $this->app->alias(EnvCollectionManager::class, 'belich.env-collection-manager');
+        $this->app->alias(EnvManager::class, 'env-manager');
+        $this->app->alias(EnvCollectionManager::class, 'env-collection-manager');
     }
 
     /**
@@ -60,8 +60,8 @@ class BelichEnvManagerServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/belich-env-manager.php' => config_path('belich-env-manager.php'),
-            ], 'belich-env-manager-config');
+                __DIR__.'/../config/env-manager.php' => config_path('env-manager.php'),
+            ], 'env-manager-config');
         }
     }
 }

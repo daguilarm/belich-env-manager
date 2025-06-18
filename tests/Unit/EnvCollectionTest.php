@@ -5,10 +5,10 @@
 // allowing for easier manipulation and transformation of environment variables,
 // comments, and empty lines.
 
-use Daguilar\BelichEnvManager\Services\BackupManager;
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\EnvCollectionManager;
+use Daguilar\EnvManager\Services\BackupManager;
+use Daguilar\EnvManager\Services\Env\EnvParser;
+use Daguilar\EnvManager\Services\Env\EnvStorage;
+use Daguilar\EnvManager\Services\EnvCollectionManager;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
@@ -29,7 +29,7 @@ beforeEach(function () {
     // Add default expectation for storage write
     $this->storage->shouldReceive('write')->with($this->envPath, Mockery::any())->andReturn(true)->byDefault();
     // Ensure backup is configured as enabled by default for most tests.
-    $this->config->shouldReceive('get')->with('belich-env-manager.backup.enabled', true)->once()->andReturn(true);
+    $this->config->shouldReceive('get')->with('env-manager.backup.enabled', true)->once()->andReturn(true);
 
     // EnvCollectionManager instance
     $this->manager = new EnvCollectionManager(
@@ -277,7 +277,7 @@ describe('Backup Handling', function () {
         // Override the default config to disable backups for this test.
         $this->config->shouldReceive('get')
             // This expectation for `true` is for the `beforeEach` setup.
-            ->with('belich-env-manager.backup.enabled', true)
+            ->with('env-manager.backup.enabled', true)
             ->andReturn(false);
 
         $this->manager = new EnvCollectionManager(

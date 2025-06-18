@@ -4,9 +4,9 @@
 // This class provides a fluent interface for setting a variable's value,
 // its inline comment, and comments above it, before finally saving
 // the changes through the main EnvManager.
-use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
-use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Services\Env\EnvEditor;
+use Daguilar\EnvManager\Services\Env\EnvVariableSetter;
+use Daguilar\EnvManager\Services\EnvManager;
 
 beforeEach(function () {
     // Mock dependencies

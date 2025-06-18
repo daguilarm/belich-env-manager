@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\BelichEnvManager\Services;
+namespace Daguilar\EnvManager\Services;
 
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
+use Daguilar\EnvManager\Services\Env\EnvParser;
+use Daguilar\EnvManager\Services\Env\EnvStorage;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Collection;
 
@@ -30,7 +30,7 @@ class EnvCollectionManager
         protected readonly EnvStorage $storage
     ) {
         $this->envPath = app()->environmentFilePath();
-        $this->backupsEnabled = (bool) $config->get('belich-env-manager.backup.enabled', true);
+        $this->backupsEnabled = (bool) $config->get('env-manager.backup.enabled', true);
         $this->collection = new Collection;
     }
 

@@ -4,7 +4,7 @@
 // This class is responsible for taking a raw string (typically the content of a .env file)
 // and parsing it into a structured array of "lines". Each line item in the array
 // details its type (variable, comment, empty), key, value, and associated comments.
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
+use Daguilar\EnvManager\Services\Env\EnvParser;
 
 beforeEach(function () {
     $this->parser = new EnvParser;

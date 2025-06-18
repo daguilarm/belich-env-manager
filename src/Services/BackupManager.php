@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\BelichEnvManager\Services;
+namespace Daguilar\EnvManager\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
@@ -31,8 +31,8 @@ class BackupManager
      */
     public static function fromConfig(Filesystem $files, ConfigRepository $config): self
     {
-        $backupPath = $config->get('belich-env-manager.backup.path', storage_path('app/env_backups'));
-        $backupRetentionDays = $config->get('belich-env-manager.backup.retention_days', 7);
+        $backupPath = $config->get('env-manager.backup.path', storage_path('app/env_backups'));
+        $backupRetentionDays = $config->get('env-manager.backup.retention_days', 7);
 
         return new self($files, $config, $backupPath, $backupRetentionDays);
     }

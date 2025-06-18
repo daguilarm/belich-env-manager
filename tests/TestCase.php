@@ -1,8 +1,8 @@
 <?php
 
-namespace Daguilar\BelichEnvManager\Tests;
+namespace Daguilar\EnvManager\Tests;
 
-use Daguilar\BelichEnvManager\BelichEnvManagerServiceProvider;
+use Daguilar\EnvManager\EnvManagerServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -15,7 +15,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            BelichEnvManagerServiceProvider::class,
+            EnvManagerServiceProvider::class,
         ];
     }
 }

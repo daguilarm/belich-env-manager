@@ -3,11 +3,11 @@
 // Unit tests for the Env and EnvCollect facades.
 // These tests ensure that the facades correctly resolve to their underlying
 // manager instances and that method calls are properly proxied.
-use Daguilar\BelichEnvManager\Facades\Env;
-use Daguilar\BelichEnvManager\Facades\EnvCollect;
-use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
-use Daguilar\BelichEnvManager\Services\EnvCollectionManager;
-use Daguilar\BelichEnvManager\Services\EnvManager;
+use Daguilar\EnvManager\Facades\Env;
+use Daguilar\EnvManager\Facades\EnvCollect;
+use Daguilar\EnvManager\Services\Env\EnvVariableSetter;
+use Daguilar\EnvManager\Services\EnvCollectionManager;
+use Daguilar\EnvManager\Services\EnvManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 

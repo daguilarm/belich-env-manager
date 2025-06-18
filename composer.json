@@ -1,7 +1,7 @@
 {
-    "name": "daguilar/belich-env-manager",
+    "name": "daguilar/env-manager",
     "description": "A Laravel package to manage .env files with backup functionality.",
-    "keywords": ["laravel", "env", "manager", "belich"],
+    "keywords": ["laravel", "env", "manager", "collections", "backup", "filesystem"],
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -25,23 +25,24 @@
     },
     "autoload": {
         "psr-4": {
-            "Daguilar\\BelichEnvManager\\": "src/"
+            "Daguilar\\EnvManager\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Daguilar\\BelichEnvManager\\Tests\\": "tests/"
+            "Daguilar\\EnvManager\\Tests\\": "tests/"
         }
     },
     "scripts": {
         "test": "./vendor/bin/pest",
         "test-p": "./vendor/bin/pest --parallel",
-        "test-unit": "./vendor/bin/pest --testsuite Unit --parallel"
+        "test-unit": "./vendor/bin/pest --testsuite Unit",
+        "test-unit-p": "./vendor/bin/pest --testsuite Unit --parallel"
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Daguilar\\BelichEnvManager\\BelichEnvManagerServiceProvider"
+                "Daguilar\\EnvManager\\EnvManagerServiceProvider"
             ]
         }
     },

@@ -3,7 +3,7 @@
 // Unit tests for the EnvStorage class.
 // This class acts as an abstraction layer for filesystem operations (read/write)
 // related to .env files, using Laravel's Filesystem component.
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
+use Daguilar\EnvManager\Services\Env\EnvStorage;
 use Illuminate\Filesystem\Filesystem;
 
 beforeEach(function () {

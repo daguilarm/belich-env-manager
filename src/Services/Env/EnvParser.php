@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\BelichEnvManager\Services\Env;
+namespace Daguilar\EnvManager\Services\Env;
 
 use Illuminate\Support\Str;
 

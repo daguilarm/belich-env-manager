@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\BelichEnvManager\Services;
+namespace Daguilar\EnvManager\Services;
 
-use Daguilar\BelichEnvManager\Services\Env\EnvEditor;
-use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
-use Daguilar\BelichEnvManager\Services\Env\EnvMultiSetter;
-use Daguilar\BelichEnvManager\Services\Env\EnvParser;
-use Daguilar\BelichEnvManager\Services\Env\EnvStorage;
-use Daguilar\BelichEnvManager\Services\Env\EnvVariableSetter;
+use Daguilar\EnvManager\Services\Env\EnvEditor;
+use Daguilar\EnvManager\Services\Env\EnvFormatter;
+use Daguilar\EnvManager\Services\Env\EnvMultiSetter;
+use Daguilar\EnvManager\Services\Env\EnvParser;
+use Daguilar\EnvManager\Services\Env\EnvStorage;
+use Daguilar\EnvManager\Services\Env\EnvVariableSetter;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 
@@ -32,7 +32,7 @@ class EnvManager
         protected readonly EnvEditor $editor
     ) {
         $this->envPath = app()->environmentFilePath();
-        $this->backupsEnabled = $config->get('belich-env-manager.backup.enabled', true);
+        $this->backupsEnabled = $config->get('env-manager.backup.enabled', true);
         $this->load();
     }
 

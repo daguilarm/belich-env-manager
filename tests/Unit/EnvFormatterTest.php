@@ -4,7 +4,7 @@
 // This class is responsible for converting a structured array of "lines"
 // (representing .env content) back into a string suitable for writing to a .env file.
 // It handles correct quoting, comment placement, and line endings.
-use Daguilar\BelichEnvManager\Services\Env\EnvFormatter;
+use Daguilar\EnvManager\Services\Env\EnvFormatter;
 
 beforeEach(function () {
     $this->formatter = new EnvFormatter;
