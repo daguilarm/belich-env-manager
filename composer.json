@@ -1,6 +1,7 @@
 {
     "name": "daguilarm/env-manager",
     "description": "A Laravel package to manage .env files with backup functionality.",
+    "version": "0.0.1",
     "keywords": ["laravel", "env", "manager", "collections", "backup", "filesystem"],
     "license": "MIT",
     "type": "library",
