@@ -67,13 +67,7 @@ It allows you to read, write, and update environment variables with ease, includ
 You can install the package via composer:
 
 ```bash
-composer require daguilarm/env-manager:dev-master
-```
-
-Or in your composer file:
-
-```bash
-"daguilarm/env-manager": "dev-master"
+composer require daguilarm/env-manager
 ```
 
 The package will automatically register its service provider. Optionally, you can publish the configuration file using:
