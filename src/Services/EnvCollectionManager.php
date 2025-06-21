@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\EnvManager\Services;
+namespace Daguilarm\EnvManager\Services;
 
-use Daguilar\EnvManager\Services\Env\EnvParser;
-use Daguilar\EnvManager\Services\Env\EnvStorage;
+use Daguilarm\EnvManager\Services\Env\EnvParser;
+use Daguilarm\EnvManager\Services\Env\EnvStorage;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Collection;
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\EnvManager\Services;
+namespace Daguilarm\EnvManager\Services;
 
-use Daguilar\EnvManager\Services\Env\EnvEditor;
-use Daguilar\EnvManager\Services\Env\EnvFormatter;
-use Daguilar\EnvManager\Services\Env\EnvMultiSetter;
-use Daguilar\EnvManager\Services\Env\EnvParser;
-use Daguilar\EnvManager\Services\Env\EnvStorage;
-use Daguilar\EnvManager\Services\Env\EnvVariableSetter;
+use Daguilarm\EnvManager\Services\Env\EnvEditor;
+use Daguilarm\EnvManager\Services\Env\EnvFormatter;
+use Daguilarm\EnvManager\Services\Env\EnvMultiSetter;
+use Daguilarm\EnvManager\Services\Env\EnvParser;
+use Daguilarm\EnvManager\Services\Env\EnvStorage;
+use Daguilarm\EnvManager\Services\Env\EnvVariableSetter;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 

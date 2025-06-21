@@ -1,11 +1,11 @@
 <?php
 
-use Daguilar\EnvManager\Services\BackupManager;
-use Daguilar\EnvManager\Services\Env\EnvEditor;
-use Daguilar\EnvManager\Services\Env\EnvFormatter;
-use Daguilar\EnvManager\Services\Env\EnvParser;
-use Daguilar\EnvManager\Services\Env\EnvStorage;
-use Daguilar\EnvManager\Services\EnvManager;
+use Daguilarm\EnvManager\Services\BackupManager;
+use Daguilarm\EnvManager\Services\Env\EnvEditor;
+use Daguilarm\EnvManager\Services\Env\EnvFormatter;
+use Daguilarm\EnvManager\Services\Env\EnvParser;
+use Daguilarm\EnvManager\Services\Env\EnvStorage;
+use Daguilarm\EnvManager\Services\EnvManager;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Filesystem\Filesystem;
 

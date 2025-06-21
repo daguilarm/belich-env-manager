@@ -1,8 +1,8 @@
 <?php
 
-namespace Daguilar\EnvManager\Services\Env;
+namespace Daguilarm\EnvManager\Services\Env;
 
-use Daguilar\EnvManager\Services\EnvManager;
+use Daguilarm\EnvManager\Services\EnvManager;
 
 /**
  * Provides a fluent interface for setting a variable's value and its comments.

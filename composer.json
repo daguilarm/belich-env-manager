@@ -1,5 +1,5 @@
 {
-    "name": "daguilar/env-manager",
+    "name": "daguilarm/env-manager",
     "description": "A Laravel package to manage .env files with backup functionality.",
     "keywords": ["laravel", "env", "manager", "collections", "backup", "filesystem"],
     "license": "MIT",
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Daguilar\\EnvManager\\": "src/"
+            "Daguilarm\\EnvManager\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Daguilar\\EnvManager\\Tests\\": "tests/"
+            "Daguilarm\\EnvManager\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -42,7 +42,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Daguilar\\EnvManager\\EnvManagerServiceProvider"
+                "Daguilarm\\EnvManager\\EnvManagerServiceProvider"
             ]
         }
     },

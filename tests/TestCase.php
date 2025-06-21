@@ -1,8 +1,8 @@
 <?php
 
-namespace Daguilar\EnvManager\Tests;
+namespace Daguilarm\EnvManager\Tests;
 
-use Daguilar\EnvManager\EnvManagerServiceProvider;
+use Daguilarm\EnvManager\EnvManagerServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra

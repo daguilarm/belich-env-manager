@@ -5,7 +5,7 @@
 // of the .env file content, which is represented as an array of "lines".
 // Each line is an associative array detailing its type (variable, comment, empty),
 // key, value, and associated comments.
-use Daguilar\EnvManager\Services\Env\EnvEditor;
+use Daguilarm\EnvManager\Services\Env\EnvEditor;
 
 beforeEach(function () {
     $this->editor = new EnvEditor;

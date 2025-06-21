@@ -5,10 +5,10 @@
 // allowing for easier manipulation and transformation of environment variables,
 // comments, and empty lines.
 
-use Daguilar\EnvManager\Services\BackupManager;
-use Daguilar\EnvManager\Services\Env\EnvParser;
-use Daguilar\EnvManager\Services\Env\EnvStorage;
-use Daguilar\EnvManager\Services\EnvCollectionManager;
+use Daguilarm\EnvManager\Services\BackupManager;
+use Daguilarm\EnvManager\Services\Env\EnvParser;
+use Daguilarm\EnvManager\Services\Env\EnvStorage;
+use Daguilarm\EnvManager\Services\EnvCollectionManager;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;

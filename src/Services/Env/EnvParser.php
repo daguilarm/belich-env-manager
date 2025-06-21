@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\EnvManager\Services\Env;
+namespace Daguilarm\EnvManager\Services\Env;
 
 use Illuminate\Support\Str;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Daguilar\EnvManager\Services;
+namespace Daguilarm\EnvManager\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;

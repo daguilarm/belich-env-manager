@@ -1,6 +1,6 @@
 <?php
 
-namespace Daguilar\EnvManager\Services\Env;
+namespace Daguilarm\EnvManager\Services\Env;
 
 use Illuminate\Support\Collection;
 

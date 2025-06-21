@@ -1,14 +1,14 @@
 <?php
 
-namespace Daguilar\EnvManager;
+namespace Daguilarm\EnvManager;
 
-use Daguilar\EnvManager\Services\BackupManager;
-use Daguilar\EnvManager\Services\Env\EnvEditor;
-use Daguilar\EnvManager\Services\Env\EnvFormatter;
-use Daguilar\EnvManager\Services\Env\EnvParser;
-use Daguilar\EnvManager\Services\Env\EnvStorage;
-use Daguilar\EnvManager\Services\EnvCollectionManager;
-use Daguilar\EnvManager\Services\EnvManager;
+use Daguilarm\EnvManager\Services\BackupManager;
+use Daguilarm\EnvManager\Services\Env\EnvEditor;
+use Daguilarm\EnvManager\Services\Env\EnvFormatter;
+use Daguilarm\EnvManager\Services\Env\EnvParser;
+use Daguilarm\EnvManager\Services\Env\EnvStorage;
+use Daguilarm\EnvManager\Services\EnvCollectionManager;
+use Daguilarm\EnvManager\Services\EnvManager;
 use Illuminate\Support\ServiceProvider; // Asegúrate de la ruta correcta
 
 class EnvManagerServiceProvider extends ServiceProvider
